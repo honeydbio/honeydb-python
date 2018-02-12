@@ -90,6 +90,9 @@ def main():
 
     args = parser.parse_args()
 
+    if not len(sys.argv) > 1:
+        parser.print_help()
+    
     if args.bad_hosts:
         print_json_data(honeydb.bad_hosts(), args.pretty)
 
