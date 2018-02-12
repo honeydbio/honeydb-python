@@ -11,7 +11,7 @@ with open(os.path.join(HERE, 'README.rst')) as f:
 
 setup(
     name="honeydb",
-    version="0.0.1",
+    version="0.0.2",
     author="foospidy",
     description=("A python wrapper for the HoneyDB API - "
                  "https://riskdiscovery.com/honeydb/#threats"),
@@ -27,5 +27,6 @@ setup(
         "Programming Language :: Python :: 2.7",
         "License :: OSI Approved :: MIT License",
     ],
-    install_requires=['requests', 'pyopenssl']
+    install_requires=['requests', 'pyopenssl'],
+    scripts=['honeydb/bin/honeydb'],
 )
