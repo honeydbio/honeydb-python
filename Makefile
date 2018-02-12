@@ -24,14 +24,14 @@ env:
 	source .env/bin/activate \
 	&& pip install --upgrade pip \
 	&& pip install --upgrade setuptools \
-	&& pip install --upgrade requests pyopenssl
+	&& pip install --upgrade requests pyopenssl twine
 
 env3:
 	virutalenv -p python3 .env3
 	source .env/bin/activate \
 	&& pip3 install --upgrade pip \
 	&& pip3 install --upgrade setuptools \
-	&& pip3 install --upgrade requests pyopenssl
+	&& pip3 install --upgrade requests pyopenssl twine
 
 wheel:
 	python setup.py bdist_wheel --universal
