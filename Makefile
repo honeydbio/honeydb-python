@@ -37,7 +37,7 @@ wheel:
 	python setup.py bdist_wheel --universal
 
 publish:
-	twine upload dist/*
+	twine upload --skip-existing dist/*
 
 clean:
 	find . -name "*.pyc" -type f -delete
