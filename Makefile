@@ -1,19 +1,19 @@
 codestyle:
-	#pycodestyle setup.py
+	pycodestyle setup.py
 	pycodestyle honeydb/__init__.py
 	pycodestyle honeydb/api/__init__.py
 	pycodestyle honeydb/api/client.py
 	pycodestyle example.py
 
 fix-codestyle:
-	#autopep8 --in-place --aggressive setup.py
+	autopep8 --in-place --aggressive setup.py
 	autopep8 --in-place --aggressive honeydb/__init__.py
 	autopep8 --in-place --aggressive honeydb/api/__init__.py
 	autopep8 --in-place --aggressive honeydb/api/client.py
 	autopep8 --in-place --aggressive example.py
 
 lint:
-	#pylint setup.py
+	pylint setup.py
 	pylint honeydb/__init__.py
 	pylint honeydb/api/__init__.py
 	pylint honeydb/api/client.py
