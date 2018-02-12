@@ -11,11 +11,10 @@ class Client(object):
     https://riskdiscovery.com/honeydb/#threats
     """
     base_url = "https://riskdiscovery.com/honeydb/api"
-    
-    
+
     api_id = None
     api_key = None
-    ep_bad_host = "/bad-host"
+    ep_bad_hosts = "/bad-hosts"
     ep_sensor_data_count = "/sensor-data/count"
     ep_sensor_data = "/sensor-data"
     ep_threatbin = "/threatbin"
@@ -35,15 +34,15 @@ class Client(object):
         data = dict()
 
         headers = {
-            'X-HoneyDb-ApiId': self.keyid,
-            'X-HoneyDb-ApiKey': self.secretkey
+            'X-HoneyDb-ApiId': self.api_id,
+            'X-HoneyDb-ApiKey': self.api_key
         }
 
         if options is not None:
             for key in options:
                 data[key] = options[key]
 
-        url = self.base_url + self.api_version + endpoint
+        url = self.base_url + endpoint
         result = None
 
         if method == "GET":
@@ -61,27 +60,30 @@ class Client(object):
         Get bad-hosts
         """
         if mydata:
-            endpoint = "{}/mydata".format(self.ep_bad_host)
+            endpoint = "{}/mydata".format(self.ep_bad_hosts)
         else:
-            endpoint = self.ep_bad_host
-        
+            endpoint = self.ep_bad_hosts
+
         return self._make_request(endpoint=endpoint)
 
-    def sensor_data_count(self, sensor_data_date=None, mydata=False):
+    def sensor_data_count(self, sensor_data_date=None, mydata=True):
         """
         Get sensor data count
         """
-         if mydata:
+        if mydata:
             endpoint = "{}/mydata".format(self.ep_sensor_data_count)
         else:
             endpoint = self.ep_sensor_data_count
-        
+
         if sensor_data_date is not None:
-            endpoint = "{}?sensor-data-date={}".format(endpoint, sensor_data_date)
+            endpoint = "{}?sensor-data-date={}".format(
+                endpoint, sensor_data_date)
+        else:
+            raise Exception("MissingParameter: sensor_data_date")
 
         return self._make_request(endpoint=endpoint)
 
-    def sensor_data(self, sensor_data_date=None, from_id=None, mydata=False):
+    def sensor_data(self, sensor_data_date=None, from_id=None, mydata=True):
         """
         Get sensor data
         """
@@ -89,21 +91,22 @@ class Client(object):
             endpoint = "{}/mydata".format(self.ep_sensor_data)
         else:
             endpoint = self.ep_sensor_data
-        
+
         if sensor_data_date is not None:
-            endpoint = "{}?sensor-data-date={}".format(endpoint, sensor_data_date)
-        
+            endpoint = "{}?sensor-data-date={}".format(
+                endpoint, sensor_data_date)
+
             if from_id is not None:
                 endpoint = "{}&from-id={}".format(endpoint, from_id)
 
         return self._make_request(endpoint=endpoint)
-    
+
     def threatbin(self):
         """
         Get threatbin
         """
         return self._make_request(endpoint=self.ep_threatbin)
-    
+
     def twitter_threat_feed(self, ipaddress=None):
         """
         Get twitter threat feed
@@ -112,5 +115,5 @@ class Client(object):
             endpoint = "{}/{}".format(self.ep_twitter_threat_feed, ipaddress)
         else:
             endpoint = self.ep_twitter_threat_feed
-        
+
         return self._make_request(endpoint=endpoint)
