@@ -4,5 +4,4 @@ python:
 
 install: make install
 
-script: make codestyle
-script: make lint
+script: make codestyle; make lint
