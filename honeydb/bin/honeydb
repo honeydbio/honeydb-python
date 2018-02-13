@@ -92,7 +92,7 @@ def main():
 
     if not len(sys.argv) > 1:
         parser.print_help()
-    
+
     if args.bad_hosts:
         print_json_data(honeydb.bad_hosts(), args.pretty)
 
@@ -100,18 +100,22 @@ def main():
         if not args.date:
             print('--date argument required.')
             sys.exit()
-        
+
         print_json_data(honeydb.sensor_data_count(args.date), args.pretty)
-        
+
     if args.sensor_data:
         if not args.date:
             print('--date argument required.')
             sys.exit()
-        
+
         if not args.from_id:
             print_json_data(honeydb.sensor_data(args.date), args.pretty)
         else:
-            print_json_data(honeydb.sensor_data(args.date, from_id=args.from_id), args.pretty)
+            print_json_data(
+                honeydb.sensor_data(
+                    args.date,
+                    from_id=args.from_id),
+                args.pretty)
 
     if args.threatbin:
         print_json_data(honeydb.threatbin(), args.pretty)
@@ -120,7 +124,10 @@ def main():
         if not args.ip_address:
             print_json_data(honeydb.twitter_threat_feed(), args.pretty)
         else:
-            print_json_data(honeydb.twitter_threat_feed(ipaddress=args.ip_address), args.pretty)
+            print_json_data(
+                honeydb.twitter_threat_feed(
+                    ipaddress=args.ip_address),
+                args.pretty)
 
 
 if __name__ == '__main__':

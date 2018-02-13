@@ -3,6 +3,7 @@ codestyle:
 	pycodestyle honeydb/__init__.py
 	pycodestyle honeydb/api/__init__.py
 	pycodestyle honeydb/api/client.py
+	pycodestyle honeydb/bin/honeydb
 	pycodestyle example.py
 
 fix-codestyle:
@@ -10,6 +11,7 @@ fix-codestyle:
 	autopep8 --in-place --aggressive honeydb/__init__.py
 	autopep8 --in-place --aggressive honeydb/api/__init__.py
 	autopep8 --in-place --aggressive honeydb/api/client.py
+	autopep8 --in-place --aggressive honeydb/bin/honeydb
 	autopep8 --in-place --aggressive example.py
 
 lint:
@@ -17,6 +19,7 @@ lint:
 	pylint honeydb/__init__.py
 	pylint honeydb/api/__init__.py
 	pylint honeydb/api/client.py
+	pylint honeydb/bin/honeydb
 	pylint --disable=W example.py
 
 env:
