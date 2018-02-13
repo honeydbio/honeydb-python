@@ -34,7 +34,7 @@ env3:
 	&& pip3 install --upgrade requests pyopenssl twine
 
 install:
-	pip install --upgrade requests
+	pip install --upgrade requests pylint
 
 wheel:
 	python setup.py bdist_wheel --universal
