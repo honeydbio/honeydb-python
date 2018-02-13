@@ -33,6 +33,9 @@ env3:
 	&& pip3 install --upgrade setuptools \
 	&& pip3 install --upgrade requests pyopenssl twine
 
+install:
+	pip install --upgrade requests
+
 wheel:
 	python setup.py bdist_wheel --universal
 
