@@ -1,6 +1,13 @@
 HoneyDB
 ==================
 
+.. image:: https://img.shields.io/pypi/v/honeydb.svg
+    :target: https://pypi.python.org/pypi/honeydb/
+    :alt: Latest Version
+
+.. image:: https://travis-ci.org/foospidy/honeydb.svg?branch=master
+    :target: https://travis-ci.org/foospidy/honeydb
+
 ``honeydb`` is a Python wrapper for the `HoneyDB REST API`_.
 
 Installation
