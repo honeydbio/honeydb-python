@@ -11,7 +11,13 @@ HoneyDB Python Module
 
 ### CLI Usage
 
-Display help message for CLI options:
+```
+$ export HONEYDB_API_ID=<your api id>
+$ export HONEYDB_API_KEY=<your api key>
+$ honeydb --bad-hosts
+```
+
+Display help message for more CLI options:
 
 `honeydb --help`
 

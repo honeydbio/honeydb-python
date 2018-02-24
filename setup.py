@@ -11,13 +11,12 @@ with open(os.path.join(HERE, 'README.rst')) as f:
 
 setup(
     name="honeydb",
-    version="0.0.5",
+    version="0.0.6",
     author="foospidy",
-    description=("A python wrapper for the HoneyDB API - "
-                 "https://riskdiscovery.com/honeydb/#threats"),
+    description=("A Python API wrapper and CLI tool for the HoneyDB."),
     license="MIT",
-    keywords="wrapper library honeydb api",
-    url="https://github.com/foospidy/honeydb-python",
+    keywords="wrapper library honeydb api cli",
+    url="https://riskdiscovery.com/honeydb",
     download_url="https://github.com/foospidy/honeydb-python",
     packages=['honeydb', 'honeydb.api'],
     long_description=LONG_DESC,

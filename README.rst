@@ -8,7 +8,12 @@ HoneyDB
 .. image:: https://travis-ci.org/foospidy/honeydb.svg?branch=master
     :target: https://travis-ci.org/foospidy/honeydb
 
-``honeydb`` is a Python wrapper for the `HoneyDB REST API`_.
+
+To learn more about HoneyDB visit `About HoneyDB`_.
+
+To lean more about the HoneyDB API visit `HoneyDB REST API`_.
+
+The ``honeydb`` command is a CLI tool for interacting with the HoneyDB API. 
 
 Installation
 ------------
@@ -20,7 +25,8 @@ Installation
 CLI usage
 ---------
 .. code-block:: bash
-
+    $ export HONEYDB_API_ID=<your api id>
+    $ export HONEYDB_API_KEY=<your api key>
     $ honeydb --bad-hosts
 
 
@@ -34,5 +40,6 @@ Module usage
 
 More details and the latest updates can be found on the `GitHub Project Page`_.
 
+.. _About HoneyDB: https://riskdiscovery.com/honeydb/#about
 .. _HoneyDB REST API: https://riskdiscovery.com/honeydb/#threats
 .. _GitHub Project Page: https://github.com/foospidy/honeydb-python
