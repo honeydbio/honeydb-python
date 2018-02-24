@@ -8,7 +8,6 @@ HoneyDB
 .. image:: https://travis-ci.org/foospidy/honeydb.svg?branch=master
     :target: https://travis-ci.org/foospidy/honeydb
 
-
 To learn more about HoneyDB visit `About HoneyDB`_.
 
 To lean more about the HoneyDB API visit `HoneyDB REST API`_.
@@ -25,6 +24,7 @@ Installation
 CLI usage
 ---------
 .. code-block:: bash
+
     $ export HONEYDB_API_ID=<your api id>
     $ export HONEYDB_API_KEY=<your api key>
     $ honeydb --bad-hosts
