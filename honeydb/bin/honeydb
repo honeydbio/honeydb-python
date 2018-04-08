@@ -59,12 +59,12 @@ def main():
         action="store_true")
     parser.add_argument(
         '--threatbin',
-        help='Get ThreatBin entires.',
+        help='Get ThreatBin entries.',
         default=False,
         action="store_true")
     parser.add_argument(
         '--twitter-threat-feed',
-        help='Get Twitter Theat Feed.',
+        help='Get Twitter Threat Feed.',
         default=False,
         action="store_true")
     parser.add_argument(
