@@ -26,5 +26,5 @@ Display help message for more CLI options:
 ```
 from honeydb import api
 honeydb = api.Client('api_id', 'api_key')
-print(honeydb.bad-hosts())
+print(honeydb.bad_hosts())
 ```
