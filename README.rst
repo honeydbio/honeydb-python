@@ -36,7 +36,7 @@ Module usage
 
     from honeydb import api
     honeydb = api.Client('api_id', 'api_key')
-    print(honeydb.bad-hosts())
+    print(honeydb.bad_hosts())
 
 More details and the latest updates can be found on the `GitHub Project Page`_.
 
