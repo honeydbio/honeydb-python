@@ -58,11 +58,6 @@ def main():
         default=False,
         action="store_true")
     parser.add_argument(
-        '--threatbin',
-        help='Get ThreatBin entries.',
-        default=False,
-        action="store_true")
-    parser.add_argument(
         '--twitter-threat-feed',
         help='Get Twitter Threat Feed.',
         default=False,
@@ -115,9 +110,6 @@ def main():
                     args.date,
                     from_id=args.from_id),
                 args.pretty)
-
-    if args.threatbin:
-        print_json_data(honeydb.threatbin(), args.pretty)
 
     if args.twitter_threat_feed:
         if not args.ip_address:
