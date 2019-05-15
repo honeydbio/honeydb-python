@@ -24,6 +24,7 @@ def print_json_data(json_data, pretty=False):
     else:
         print(json.dumps(json_data))
 
+
 def main():
     """
     Main function for HoneyDB CLI tool
@@ -119,6 +120,7 @@ def main():
                 honeydb.twitter_threat_feed(
                     ipaddress=args.ip_address),
                 args.pretty)
+
 
 if __name__ == '__main__':
     main()

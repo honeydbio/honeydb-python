@@ -54,10 +54,6 @@ def main():
         out(data)
         """
 
-        # Get threat bin
-        threatbin = honeydb.threatbin()
-        out(threatbin)
-
         # Get twitter threat feed
         twitter = honeydb.twitter_threat_feed()
         out(twitter)
