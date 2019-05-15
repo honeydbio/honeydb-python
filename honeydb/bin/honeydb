@@ -72,7 +72,7 @@ def main():
         help='Date in format YYYY-MM-DD')
     parser.add_argument(
         '--ip-address',
-        help='IP address to filter on.')
+        help='IP address to filter on (Applies to Twitter Threat Feed only).')
     parser.add_argument(
         '--from-id',
         help='ID to continue retrieving sensor data.')
