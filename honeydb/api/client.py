@@ -17,6 +17,7 @@ class Client(object):
     ep_bad_hosts = "/bad-hosts"
     ep_sensor_data_count = "/sensor-data/count"
     ep_sensor_data = "/sensor-data"
+    ep_services = "/services"
     ep_twitter_threat_feed = "/twitter-threat-feed"
 
     def __init__(self, api_id, api_key):
@@ -100,6 +101,14 @@ class Client(object):
 
         return self._make_request(endpoint=endpoint)
 
+    def services(self):
+       """
+        Get services
+        """
+        endpoint = self.ep_services
+
+        return self._make_request(endpoint=endpoint)
+ 
     def twitter_threat_feed(self, ipaddress=None):
         """
         Get twitter threat feed
