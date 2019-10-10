@@ -17,7 +17,7 @@ fix-codestyle:
 lint:
 	pylint setup.py
 	pylint honeydb/__init__.py
-	pylint honeydb/api/__init__.py
+	#pylint honeydb/api/__init__.py
 	pylint honeydb/api/client.py
 	pylint honeydb/bin/honeydb
 	pylint --disable=W example.py
@@ -41,6 +41,10 @@ install:
 
 wheel:
 	python setup.py bdist_wheel --universal
+
+dev-install:
+	pip uninstall honeydb
+	pip install dist/*
 
 publish:
 	twine upload --skip-existing dist/*

@@ -55,14 +55,28 @@ class Client(object):
 
         return result.json()
 
-    def bad_hosts(self, mydata=False):
+    def bad_hosts(self, service=None, mydata=False):
         """
         Get bad-hosts
         """
+        endpoint = self.ep_bad_hosts
+
+        if service is not None:
+            endpoint += "/{}".format(service)
+
         if mydata:
-            endpoint = "{}/mydata".format(self.ep_bad_hosts)
+            endpoint += "/mydata"
+
+        return self._make_request(endpoint=endpoint)
+
+    def bad_hosts_service(self, service, mydata=False):
+        """
+        Get bad-hosts by service
+        """
+        if mydata:
+            endpoint = "{}/{}/mydata".format(service, self.ep_bad_hosts)
         else:
-            endpoint = self.ep_bad_hosts
+            endpoint = "{}/{}".format(self.ep_bad_hosts, service)
 
         return self._make_request(endpoint=endpoint)
 
@@ -102,13 +116,13 @@ class Client(object):
         return self._make_request(endpoint=endpoint)
 
     def services(self):
-       """
+        """
         Get services
         """
         endpoint = self.ep_services
 
         return self._make_request(endpoint=endpoint)
- 
+
     def twitter_threat_feed(self, ipaddress=None):
         """
         Get twitter threat feed
