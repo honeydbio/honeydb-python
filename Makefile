@@ -30,11 +30,11 @@ env:
 	&& pip install --upgrade requests pyopenssl twine
 
 env3:
-	virutalenv -p python3 .env3
-	source .env/bin/activate \
+	python3 -m venv .env3
+	source .env3/bin/activate \
 	&& pip3 install --upgrade pip \
 	&& pip3 install --upgrade setuptools \
-	&& pip3 install --upgrade requests pyopenssl twine
+	&& pip3 install --upgrade requests pyopenssl wheel twine
 
 install:
 	pip install --upgrade requests pylint pycodestyle
