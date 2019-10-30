@@ -19,6 +19,11 @@ class Client(object):
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
     ep_twitter_threat_feed = "/twitter-threat-feed"
+    ep_netinfo_lookup = "/netinfo/lookup"
+    ep_netinfo_network_addresses = "/netinfo/network-addresses"
+    ep_netinfo_prefixes = "/netinfo/prefixes"
+    ep_netinfo_as_name = "/netinfo/as-name"
+    ep_netinfo_geolocation = "/netinfo/geolocation"
 
     def __init__(self, api_id, api_key):
         """
@@ -132,4 +137,24 @@ class Client(object):
         else:
             endpoint = self.ep_twitter_threat_feed
 
+        return self._make_request(endpoint=endpoint)
+
+    def netinfo_lookup(self, ipaddress):
+        endpoint = "{}/{}".format(self.ep_netinfo_lookup, ipaddress)
+        return self._make_request(endpoint=endpoint)
+
+    def netinfo_network_addresses(self, cidr):
+        endpoint = "{}/{}".format(self.ep_netinfo_network_addresses, cidr)
+        return self._make_request(endpoint=endpoint)
+
+    def netinfo_prefixes(self, asn):
+        endpoint = "{}/{}".format(self.ep_netinfo_prefixes, asn)
+        return self._make_request(endpoint=endpoint)
+
+    def netinfo_as_name(self, asn):
+        endpoint = "{}/{}".format(self.ep_netinfo_as_name, asn)
+        return self._make_request(endpoint=endpoint)
+
+    def netinfo_geolocation(self, ipaddress):
+        endpoint = "{}/{}".format(self.ep_netinfo_geolocation, ipaddress)
         return self._make_request(endpoint=endpoint)

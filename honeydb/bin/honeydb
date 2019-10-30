@@ -69,6 +69,31 @@ def main():
         default=False,
         action="store_true")
     parser.add_argument(
+        '--netinfo-lookup',
+        help='Get netinfo for IP.',
+        type=str,
+        default=None)
+    parser.add_argument(
+        '--netinfo-network-addresses',
+        help='Get network addresses for CIDR.',
+        type=str,
+        default=None)
+    parser.add_argument(
+        '--netinfo-prefixes',
+        help='Get network prefixes for ASN.',
+        type=int,
+        default=None)
+    parser.add_argument(
+        '--netinfo-as-name',
+        help='Get AS name for ASN.',
+        type=int,
+        default=None)
+    parser.add_argument(
+        '--netinfo-geolocation',
+        help='Get GEO location for IP.',
+        type=str,
+        default=None)
+    parser.add_argument(
         '--mydata',
         help='Filter on mydata.',
         default=False,
@@ -136,6 +161,35 @@ def main():
                     ipaddress=args.ip_address),
                 args.pretty)
 
+    if args.netinfo_lookup:
+        print_json_data(
+            honeydb.netinfo_lookup(
+                ipaddress=args.netinfo_lookup),
+            args.pretty)
+
+    if args.netinfo_network_addresses:
+        print_json_data(
+            honeydb.netinfo_network_addresses(
+                cidr=args.netinfo_network_addresses),
+            args.pretty)
+
+    if args.netinfo_prefixes:
+        print_json_data(
+            honeydb.netinfo_prefixes(
+                asn=args.netinfo_prefixes),
+            args.pretty)
+
+    if args.netinfo_as_name:
+        print_json_data(
+            honeydb.netinfo_as_name(
+                asn=args.netinfo_as_name),
+            args.pretty)
+
+    if args.netinfo_geolocation:
+        print_json_data(
+            honeydb.netinfo_geolocation(
+                ipaddress=args.netinfo_geolocation),
+            args.pretty)
 
 if __name__ == '__main__':
     main()
