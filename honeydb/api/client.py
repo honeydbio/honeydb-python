@@ -140,21 +140,36 @@ class Client(object):
         return self._make_request(endpoint=endpoint)
 
     def netinfo_lookup(self, ipaddress):
+        """
+        Get netinfo for given ipaddress
+        """
         endpoint = "{}/{}".format(self.ep_netinfo_lookup, ipaddress)
         return self._make_request(endpoint=endpoint)
 
     def netinfo_network_addresses(self, cidr):
+        """
+        Get network addresses for given cidr
+        """
         endpoint = "{}/{}".format(self.ep_netinfo_network_addresses, cidr)
         return self._make_request(endpoint=endpoint)
 
     def netinfo_prefixes(self, asn):
+        """
+        Get prefixes for given asn
+        """
         endpoint = "{}/{}".format(self.ep_netinfo_prefixes, asn)
         return self._make_request(endpoint=endpoint)
 
     def netinfo_as_name(self, asn):
+        """
+        Get AS name for given asn
+        """
         endpoint = "{}/{}".format(self.ep_netinfo_as_name, asn)
         return self._make_request(endpoint=endpoint)
 
     def netinfo_geolocation(self, ipaddress):
+        """
+        Get GEO location for given ipaddress
+        """
         endpoint = "{}/{}".format(self.ep_netinfo_geolocation, ipaddress)
         return self._make_request(endpoint=endpoint)
