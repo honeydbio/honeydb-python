@@ -124,7 +124,8 @@ def main():
         parser.print_help()
 
     if args.bad_hosts:
-        print_json_data(honeydb.bad_hosts(args.service, args.mydata), args.pretty)
+        print_json_data(honeydb.bad_hosts(args.service, args.mydata),
+                        args.pretty)
 
     if args.sensor_data_count:
         if not args.date:
@@ -190,6 +191,7 @@ def main():
             honeydb.netinfo_geolocation(
                 ipaddress=args.netinfo_geolocation),
             args.pretty)
+
 
 if __name__ == '__main__':
     main()
