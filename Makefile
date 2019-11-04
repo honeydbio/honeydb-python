@@ -44,7 +44,7 @@ wheel:
 	python setup.py bdist_wheel --universal
 
 dev-install:
-	pip uninstall honeydb
+	-pip uninstall honeydb
 	pip install dist/*
 
 publish:

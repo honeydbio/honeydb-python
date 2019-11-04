@@ -69,6 +69,11 @@ def main():
         default=False,
         action="store_true")
     parser.add_argument(
+        '--nodes',
+        help='Get nodes data.',
+        default=False,
+        action="store_true")
+    parser.add_argument(
         '--netinfo-lookup',
         help='Get netinfo for IP.',
         type=str,
@@ -161,6 +166,11 @@ def main():
                 honeydb.twitter_threat_feed(
                     ipaddress=args.ip_address),
                 args.pretty)
+
+    if args.nodes:
+        print_json_data(
+            honeydb.nodes(args.mydata),
+            args.pretty)
 
     if args.netinfo_lookup:
         print_json_data(

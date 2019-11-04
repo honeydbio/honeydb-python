@@ -19,6 +19,7 @@ class Client(object):
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
     ep_twitter_threat_feed = "/twitter-threat-feed"
+    ep_nodes = "/nodes"
     ep_netinfo_lookup = "/netinfo/lookup"
     ep_netinfo_network_addresses = "/netinfo/network-addresses"
     ep_netinfo_prefixes = "/netinfo/prefixes"
@@ -136,6 +137,17 @@ class Client(object):
             endpoint = "{}/{}".format(self.ep_twitter_threat_feed, ipaddress)
         else:
             endpoint = self.ep_twitter_threat_feed
+
+        return self._make_request(endpoint=endpoint)
+
+    def nodes(self, mydata=False):
+        """
+        Get nodes
+        """
+        if mydata:
+            endpoint = "{}/mydata".format(self.ep_nodes)
+        else:
+            endpoint = self.ep_nodes
 
         return self._make_request(endpoint=endpoint)
 
