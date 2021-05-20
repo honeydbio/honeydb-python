@@ -40,7 +40,7 @@ install:
 	pip install --upgrade requests pylint pycodestyle
 
 wheel:
-	rm dist/*
+	-rm dist/*
 	python setup.py bdist_wheel --universal
 
 dev-install:

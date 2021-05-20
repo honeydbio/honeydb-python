@@ -26,6 +26,6 @@ setup(
         "Programming Language :: Python :: 2.7",
         "License :: OSI Approved :: MIT License",
     ],
-    install_requires=['requests', 'pyopenssl'],
+    install_requires=['requests'],
     scripts=['honeydb/bin/honeydb'],
 )
