@@ -49,7 +49,7 @@ def main():
         """
         # Example with from_id.
         # See more information on using from_id here:
-        # https://riskdiscovery.com/honeydb/#sensor_data_filtered
+        # https://honeydb.io/threats#sensor_data_filtered
         data = honeydb.sensor_data(sensor_data_date=today, from_id=84869618)
         out(data)
         """
@@ -61,7 +61,7 @@ def main():
         """
         # Example with ipaddress.
         # See more information on using from_id here:
-        # https://riskdiscovery.com/honeydb/#twitter_threat_feed
+        # https://honeydb.io/threats#twitter_threat_feed
         twitter = honeydb.twitter_threat_feed(ipaddress="201.179.21.139")
         out(twitter)
         """

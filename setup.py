@@ -16,8 +16,8 @@ setup(
     description=("A Python API wrapper and CLI tool for the HoneyDB."),
     license="MIT",
     keywords="wrapper library honeydb api cli",
-    url="https://riskdiscovery.com/honeydb",
-    download_url="https://github.com/foospidy/honeydb-python",
+    url="https://honeydb.io",
+    download_url="https://github.com/honeydbio/honeydb-python",
     packages=['honeydb', 'honeydb.api'],
     long_description=LONG_DESC,
     classifiers=[

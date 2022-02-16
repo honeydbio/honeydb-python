@@ -40,6 +40,6 @@ Module usage
 
 More details and the latest updates can be found on the `GitHub Project Page`_.
 
-.. _About HoneyDB: https://riskdiscovery.com/honeydb/#about
-.. _HoneyDB REST API: https://riskdiscovery.com/honeydb/#threats
-.. _GitHub Project Page: https://github.com/foospidy/honeydb-python
+.. _About HoneyDB: https://honeydb.io/#about
+.. _HoneyDB REST API: https://honeydb.io/#threats
+.. _GitHub Project Page: https://github.com/honeydbio/honeydb-python

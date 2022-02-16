@@ -8,9 +8,9 @@ import requests
 class Client(object):
     """
     Base class for making requests to the HoneyDB API.
-    https://riskdiscovery.com/honeydb/#threats
+    https://honeydb.io/#threats
     """
-    base_url = "https://riskdiscovery.com/honeydb/api"
+    base_url = "https://honeydb.io/api"
 
     api_id = None
     api_key = None
