@@ -31,7 +31,7 @@ env:
 
 env3:
 	python3 -m venv .env3
-	source .env3/bin/activate \
+	. .env3/bin/activate \
 	&& pip3 install --upgrade pip \
 	&& pip3 install --upgrade setuptools \
 	&& pip3 install --upgrade requests pyopenssl wheel twine
