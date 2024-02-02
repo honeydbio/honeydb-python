@@ -12,10 +12,10 @@ lint-check:
 
 wheel:
 	-rm dist/*
-	python setup.py bdist_wheel --universal
+	.env/bin/python setup.py bdist_wheel --universal
 
 publish:
-	twine upload --skip-existing dist/*
+	.env/bin/twine upload --skip-existing dist/*
 
 local-install:
 	-.env/bin/pip3 uninstall honeydb
