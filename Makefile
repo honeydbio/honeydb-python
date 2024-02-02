@@ -1,54 +1,25 @@
-codestyle:
-	pycodestyle setup.py
-	pycodestyle honeydb/__init__.py
-	pycodestyle honeydb/api/__init__.py
-	pycodestyle honeydb/api/client.py
-	pycodestyle honeydb/bin/honeydb
-	pycodestyle example.py
-
-fix-codestyle:
-	autopep8 --in-place --aggressive setup.py
-	autopep8 --in-place --aggressive honeydb/__init__.py
-	autopep8 --in-place --aggressive honeydb/api/__init__.py
-	autopep8 --in-place --aggressive honeydb/api/client.py
-	autopep8 --in-place --aggressive honeydb/bin/honeydb
-	autopep8 --in-place --aggressive example.py
-
-lint:
-	pylint setup.py
-	pylint honeydb/__init__.py
-	#pylint honeydb/api/__init__.py
-	pylint honeydb/api/client.py
-	pylint honeydb/bin/honeydb
-	pylint --disable=W example.py
-
 env:
-	virtualenv -p python .env
-	source .env/bin/activate \
-	&& pip install --upgrade pip \
-	&& pip install --upgrade setuptools \
-	&& pip install --upgrade requests pyopenssl twine
+	python3 -m venv .env
+	.env/bin/pip3 install --upgrade pip
+	.env/bin/pip3 install --upgrade setuptools
+	.env/bin/pip3 install --upgrade requests black ruff wheel twine
 
-env3:
-	python3 -m venv .env3
-	. .env3/bin/activate \
-	&& pip3 install --upgrade pip \
-	&& pip3 install --upgrade setuptools \
-	&& pip3 install --upgrade requests pyopenssl wheel twine
+format-check:
+	if [ -f .env/bin/black ]; then .env/bin/black --check .; else black --check .; fi
 
-install:
-	pip install --upgrade requests pylint pycodestyle
+lint-check:
+	if [ -f .env/bin/ruff ]; then .env/bin/ruff .; else ruff.; fi
 
 wheel:
 	-rm dist/*
 	python setup.py bdist_wheel --universal
 
-dev-install:
-	-pip uninstall honeydb
-	pip install dist/*
-
 publish:
 	twine upload --skip-existing dist/*
+
+local-install:
+	-.env/bin/pip3 uninstall honeydb
+	.env/bin/pip3 install dist/*
 
 clean:
 	find . -name "*.pyc" -type f -delete
