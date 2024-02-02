@@ -10,6 +10,7 @@ class Client(object):
     Base class for making requests to the HoneyDB API.
     https://honeydb.io/#threats
     """
+
     base_url = "https://honeydb.io/api"
 
     api_id = None
@@ -39,10 +40,7 @@ class Client(object):
         """
         data = dict()
 
-        headers = {
-            'X-HoneyDb-ApiId': self.api_id,
-            'X-HoneyDb-ApiKey': self.api_key
-        }
+        headers = {"X-HoneyDb-ApiId": self.api_id, "X-HoneyDb-ApiKey": self.api_key}
 
         if options is not None:
             for key in options:
@@ -54,7 +52,7 @@ class Client(object):
         if method == "GET":
             result = requests.get(url, params=data, headers=headers)
         elif method == "POST":
-            headers['Content-Type'] = "application/json"
+            headers["Content-Type"] = "application/json"
             result = requests.post(url, json=data, headers=headers)
         else:
             raise Exception("InvalidMethod: " + str(method))
@@ -96,8 +94,7 @@ class Client(object):
             endpoint = self.ep_sensor_data_count
 
         if sensor_data_date is not None:
-            endpoint = "{}?sensor-data-date={}".format(
-                endpoint, sensor_data_date)
+            endpoint = "{}?sensor-data-date={}".format(endpoint, sensor_data_date)
         else:
             raise Exception("MissingParameter: sensor_data_date")
 
@@ -113,8 +110,7 @@ class Client(object):
             endpoint = self.ep_sensor_data
 
         if sensor_data_date is not None:
-            endpoint = "{}?sensor-data-date={}".format(
-                endpoint, sensor_data_date)
+            endpoint = "{}?sensor-data-date={}".format(endpoint, sensor_data_date)
 
             if from_id is not None:
                 endpoint = "{}&from-id={}".format(endpoint, from_id)

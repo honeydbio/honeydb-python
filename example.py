@@ -38,7 +38,7 @@ def main():
         out(bad_hosts)
 
         # Get sensor data count
-        today = datetime.datetime.today().strftime('%Y-%m-%d')
+        today = datetime.datetime.today().strftime("%Y-%m-%d")
         data_count = honeydb.sensor_data_count(sensor_data_date=today)
         out(data_count)
 
@@ -70,5 +70,5 @@ def main():
         print(str(error))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
