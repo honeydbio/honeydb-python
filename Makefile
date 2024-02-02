@@ -8,7 +8,7 @@ format-check:
 	if [ -f .env/bin/black ]; then .env/bin/black --check .; else black --check .; fi
 
 lint-check:
-	if [ -f .env/bin/ruff ]; then .env/bin/ruff .; else ruff.; fi
+	if [ -f .env/bin/ruff ]; then .env/bin/ruff .; else ruff .; fi
 
 wheel:
 	-rm dist/*
@@ -23,7 +23,7 @@ local-install:
 
 update-from-upstream:
 	# update master branch from honeydbio
-	# first add upstrea with: git remote add upstream https://github.com/honeydbio/honeydb-python.git
+	# first add upstream with: git remote add upstream https://github.com/honeydbio/honeydb-python.git
 	git fetch upstream
 	git checkout master
 	git merge upstream/master
