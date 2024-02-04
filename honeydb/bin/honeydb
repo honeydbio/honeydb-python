@@ -69,6 +69,12 @@ def main():
         default=False,
         action="store_true")
     parser.add_argument(
+        '--stats',
+        help='Get stats.',
+        default=False,
+        action="store_true"
+        )
+    parser.add_argument(
         '--twitter-threat-feed',
         help='Get Twitter Threat Feed.',
         default=False,
@@ -117,6 +123,16 @@ def main():
         '--date',
         help='Date in format YYYY-MM-DD')
     parser.add_argument(
+        '--year',
+        type=int,
+        help="Year in the format YYYY",
+    )
+    parser.add_argument(
+        '--month',
+        type=int,
+        help='Month in the format MM (1-12)'
+    )
+    parser.add_argument(
         '--ip-address',
         help='IP address to filter on (Applies to Twitter Threat Feed only).')
     parser.add_argument(
@@ -138,7 +154,7 @@ def main():
                         args.pretty)
 
     if args.ip_history:
-        print_json_data(honeydb.ip_history(ip_address=args.ip_address))
+        print_json_data(honeydb.ip_history(ip_address=args.ip_address), args.pretty)
 
     if args.sensor_data_count:
         if not args.date:
@@ -166,6 +182,11 @@ def main():
             honeydb.services(),
             args.pretty)
 
+    if args.stats:
+        print_json_data(
+            honeydb.stats(year=args.year, month=args.month),
+            args.pretty
+        )
     if args.twitter_threat_feed:
         if not args.ip_address:
             print_json_data(honeydb.twitter_threat_feed(), args.pretty)

@@ -20,6 +20,7 @@ class Client(object):
     ep_sensor_data_count = "/sensor-data/count"
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
+    ep_stats = "/stats"
     ep_twitter_threat_feed = "/twitter-threat-feed"
     ep_nodes = "/nodes"
     ep_netinfo_lookup = "/netinfo/lookup"
@@ -131,6 +132,14 @@ class Client(object):
         Get services
         """
         endpoint = self.ep_services
+
+        return self._make_request(endpoint=endpoint)
+
+    def stats(self, year: int, month: int):
+        """
+        Get stats
+        """
+        endpoint = f"{self.ep_stats}?year={year}&month={month}"
 
         return self._make_request(endpoint=endpoint)
 
