@@ -49,6 +49,11 @@ def main():
         default=False,
         action="store_true")
     parser.add_argument(
+        '--ip-history',
+        help='Get IP history.',
+        default=False,
+        action="store_true")
+    parser.add_argument(
         '--sensor-data-count',
         help='Get sensor data count.',
         default=False,
@@ -131,6 +136,9 @@ def main():
     if args.bad_hosts:
         print_json_data(honeydb.bad_hosts(args.service, args.mydata),
                         args.pretty)
+
+    if args.ip_history:
+        print_json_data(honeydb.ip_history(ip_address=args.ip_address))
 
     if args.sensor_data_count:
         if not args.date:

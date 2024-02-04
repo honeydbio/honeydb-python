@@ -16,6 +16,7 @@ class Client(object):
     api_id = None
     api_key = None
     ep_bad_hosts = "/bad-hosts"
+    ep_ip_history = "/ip-history"
     ep_sensor_data_count = "/sensor-data/count"
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
@@ -81,6 +82,14 @@ class Client(object):
             endpoint = "{}/{}/mydata".format(service, self.ep_bad_hosts)
         else:
             endpoint = "{}/{}".format(self.ep_bad_hosts, service)
+
+        return self._make_request(endpoint=endpoint)
+
+    def ip_history(self, ip_address: str) -> dict:
+        """
+        Get IP History for given IP
+        """
+        endpoint = f"{self.ep_ip_history}/{ip_address}"
 
         return self._make_request(endpoint=endpoint)
 
