@@ -64,6 +64,9 @@ def main():
         "--stats", help="Get stats.", default=False, action="store_true"
     )
     parser.add_argument(
+        "--stats-asn", help="Get stats asn.", default=False, action="store_true"
+    )
+    parser.add_argument(
         "--twitter-threat-feed",
         help="Get Twitter Threat Feed.",
         default=False,
@@ -153,6 +156,10 @@ def main():
 
     if args.stats:
         print_json_data(honeydb.stats(year=args.year, month=args.month), args.pretty)
+    
+    if args.stats_asn:
+        print_json_data(honeydb.stats_asn(), args.pretty)
+
     if args.twitter_threat_feed:
         if not args.ip_address:
             print_json_data(honeydb.twitter_threat_feed(), args.pretty)

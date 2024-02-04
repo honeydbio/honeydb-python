@@ -21,6 +21,7 @@ class Client(object):
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
     ep_stats = "/stats"
+    ep_stats_asn = "/stats/asn"
     ep_twitter_threat_feed = "/twitter-threat-feed"
     ep_nodes = "/nodes"
     ep_netinfo_lookup = "/netinfo/lookup"
@@ -58,7 +59,7 @@ class Client(object):
             result = requests.post(url, json=data, headers=headers)
         else:
             raise Exception("InvalidMethod: " + str(method))
-
+        print(result.text)
         return result.json()
 
     def bad_hosts(self, service=None, mydata=False):
@@ -135,7 +136,7 @@ class Client(object):
 
         return self._make_request(endpoint=endpoint)
 
-    def stats(self, year: int, month: int):
+    def stats(self, year: int, month: int) -> dict:
         """
         Get stats
         """
@@ -143,6 +144,12 @@ class Client(object):
 
         return self._make_request(endpoint=endpoint)
 
+    def stats_asn(self) -> dict:
+        """
+        Get stats-asn
+        """
+        return self._make_request(endpoint=self.ep_stats_asn)
+    
     def twitter_threat_feed(self, ipaddress=None):
         """
         Get twitter threat feed
