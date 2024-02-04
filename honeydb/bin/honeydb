@@ -49,6 +49,30 @@ def main():
         "--ip-history", help="Get IP history.", default=False, action="store_true"
     )
     parser.add_argument(
+        "--payload-history",
+        help="Get payload history data",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--payload-history-services",
+        help="Get payload history services data",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--payload-history-remote-hosts",
+        help="Get payload history remote hosts data",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--payload-history-attributes",
+        help="Get payload history attributes data",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
         "--sensor-data-count",
         help="Get sensor data count.",
         default=False,
@@ -128,6 +152,8 @@ def main():
         "--ip-address",
         help="IP address to filter on (Applies to Twitter Threat Feed only).",
     )
+    parser.add_argument("--hash", help="Hash value.")
+    parser.add_argument("--attribute", help="Attribute value", type=str, default=None)
     parser.add_argument("--from-id", help="ID to continue retrieving sensor data.")
     parser.add_argument(
         "--pretty",
@@ -146,6 +172,37 @@ def main():
 
     if args.ip_history:
         print_json_data(honeydb.ip_history(ip_address=args.ip_address), args.pretty)
+
+    if args.payload_history:
+        if args.year is not None or args.month is not None or args.hash is not None:
+            print_json_data(
+                honeydb.payload_history(
+                    year=args.year, month=args.month, hash=args.hash
+                ),
+                args.pretty,
+            )
+        else:
+            print("ERROR: at least one required parameter not provided.")
+
+    if args.payload_history_services:
+        print_json_data(
+            honeydb.payload_history_services(service=args.service),
+            args.pretty,
+        )
+
+    if args.payload_history_remote_hosts:
+        print_json_data(
+            honeydb.payload_history_remote_hosts(
+                remote_host=args.ip_address, hash=args.hash, year=args.year
+            ),
+            args.pretty,
+        )
+
+    if args.payload_history_attributes:
+        print_json_data(
+            honeydb.payload_history_attributes(attribute=args.attribute),
+            args.pretty,
+        )
 
     if args.sensor_data_count:
         if not args.date:

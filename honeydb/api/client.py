@@ -17,6 +17,7 @@ class Client(object):
     api_key = None
     ep_bad_hosts = "/bad-hosts"
     ep_ip_history = "/ip-history"
+    ep_payload_history = "/payload-history"
     ep_sensor_data_count = "/sensor-data/count"
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
@@ -60,7 +61,6 @@ class Client(object):
             result = requests.post(url, json=data, headers=headers)
         else:
             raise Exception("InvalidMethod: " + str(method))
-        print(result.text)
         return result.json()
 
     def bad_hosts(self, service=None, mydata=False):
@@ -93,6 +93,61 @@ class Client(object):
         Get IP History for given IP
         """
         endpoint = f"{self.ep_ip_history}/{ip_address}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history(
+        self, year: int = None, month: int = None, hash: str = None
+    ) -> dict:
+        """
+        Get payload history
+        """
+        if hash:
+            endpoint = f"{self.ep_payload_history}/{hash}"
+
+        elif year and month:
+            endpoint = f"{self.ep_payload_history}/{year}/{month}"
+
+        elif year:
+            endpoint = f"{self.ep_payload_history}/{year}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history_services(self, service: str = None) -> dict:
+        """
+        Get payload history services
+        """
+        endpoint = f"{self.ep_payload_history}/services"
+
+        if service:
+            endpoint = f"{self.ep_payload_history}/{service}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history_remote_hosts(
+        self, remote_host: str = None, hash: str = None, year: int = None
+    ) -> dict:
+        """
+        Get payload history remote hosts
+        """
+        endpoint = f"{self.ep_payload_history}/remote-hosts"
+
+        if hash and year:
+            endpoint = f"{self.ep_payload_history}/{hash}/remote-hosts/{year}"
+        
+        if remote_host:
+            endpoint = f"{self.ep_payload_history}/remote-hosts/{remote_host}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history_attributes(self, attribute: str = None) -> dict:
+        """
+        Get payload history attributes
+        """
+        endpoint = f"{self.ep_payload_history}/attributes"
+
+        if attribute:
+            endpoint = f"{endpoint}/{attribute}"
 
         return self._make_request(endpoint=endpoint)
 
@@ -150,7 +205,7 @@ class Client(object):
         Get stats-asn
         """
         return self._make_request(endpoint=self.ep_stats_asn)
-    
+
     def twitter_threat_feed(self, ipaddress=None):
         """
         Get twitter threat feed
