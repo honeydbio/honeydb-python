@@ -29,6 +29,7 @@ class Client(object):
     ep_netinfo_prefixes = "/netinfo/prefixes"
     ep_netinfo_as_name = "/netinfo/as-name"
     ep_netinfo_geolocation = "/netinfo/geolocation"
+    ep_datacenter = "/datacenter"
 
     def __init__(self, api_id, api_key):
         """
@@ -205,4 +206,11 @@ class Client(object):
         Get GEO location for given ipaddress
         """
         endpoint = "{}/{}".format(self.ep_netinfo_geolocation, ipaddress)
+        return self._make_request(endpoint=endpoint)
+
+    def datacenter(self, datacenter: str) -> dict:
+        """
+        Get datacenter ip ranges
+        """
+        endpoint = f"{self.ep_datacenter}/{datacenter}"
         return self._make_request(endpoint=endpoint)

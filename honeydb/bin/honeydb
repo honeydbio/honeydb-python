@@ -97,6 +97,21 @@ def main():
         "--netinfo-geolocation", help="Get GEO location for IP.", type=str, default=None
     )
     parser.add_argument(
+        "--datacenter",
+        help="Get datacenter IP ranges.",
+        choices=[
+            "aws",
+            "azure",
+            "azure/china",
+            "azure/germany",
+            "azure/gov",
+            "gcp",
+            "ibm",
+            "oracle",
+        ],
+        default=None,
+    )
+    parser.add_argument(
         "--mydata", help="Filter on mydata.", default=False, action="store_true"
     )
     parser.add_argument(
@@ -156,7 +171,7 @@ def main():
 
     if args.stats:
         print_json_data(honeydb.stats(year=args.year, month=args.month), args.pretty)
-    
+
     if args.stats_asn:
         print_json_data(honeydb.stats_asn(), args.pretty)
 
@@ -194,6 +209,9 @@ def main():
         print_json_data(
             honeydb.netinfo_geolocation(ipaddress=args.netinfo_geolocation), args.pretty
         )
+
+    if args.datacenter:
+        print_json_data(honeydb.datacenter(datacenter=args.datacenter), args.pretty)
 
 
 if __name__ == "__main__":
