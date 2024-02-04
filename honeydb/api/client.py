@@ -134,7 +134,7 @@ class Client(object):
 
         if hash and year:
             endpoint = f"{self.ep_payload_history}/{hash}/remote-hosts/{year}"
-        
+
         if remote_host:
             endpoint = f"{self.ep_payload_history}/remote-hosts/{remote_host}"
 
