@@ -5,9 +5,6 @@ HoneyDB
     :target: https://pypi.python.org/pypi/honeydb/
     :alt: Latest Version
 
-.. image:: https://travis-ci.org/foospidy/honeydb.svg?branch=master
-    :target: https://travis-ci.org/foospidy/honeydb
-
 To learn more about HoneyDB visit `About HoneyDB`_.
 
 To lean more about the HoneyDB API visit `HoneyDB REST API`_.
