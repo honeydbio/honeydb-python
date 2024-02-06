@@ -12,7 +12,7 @@ with open(os.path.join(HERE, "README.rst")) as f:
 
 setup(
     name="honeydb",
-    version="1.4.0",
+    version="1.5.0",
     author="foospidy",
     description=("A Python API wrapper and CLI tool for the HoneyDB."),
     license="MIT",
