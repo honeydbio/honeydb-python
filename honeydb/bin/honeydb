@@ -7,7 +7,6 @@ export HONEYDB_API_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export HONEYDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 """
 
-from __future__ import print_function
 import os
 import sys
 import json
@@ -40,88 +39,127 @@ def main():
     honeydb = api.Client(api_id, api_key)
 
     # Parse arguments
-    parser = argparse.ArgumentParser(
-        description="Process command line arguments.")
+    parser = argparse.ArgumentParser(description="Process command line arguments.")
 
     parser.add_argument(
-        '--bad-hosts',
-        help='Get bad hosts.',
-        default=False,
-        action="store_true")
+        "--bad-hosts", help="Get bad hosts.", default=False, action="store_true"
+    )
     parser.add_argument(
-        '--sensor-data-count',
-        help='Get sensor data count.',
-        default=False,
-        action="store_true")
+        "--ip-history", help="Get IP history.", default=False, action="store_true"
+    )
     parser.add_argument(
-        '--sensor-data',
-        help='Get sensor data.',
+        "--payload-history",
+        help="Get payload history data",
         default=False,
-        action="store_true")
+        action="store_true",
+    )
     parser.add_argument(
-        '--services',
-        help='Get services data.',
+        "--payload-history-services",
+        help="Get payload history services data",
         default=False,
-        action="store_true")
+        action="store_true",
+    )
     parser.add_argument(
-        '--twitter-threat-feed',
-        help='Get Twitter Threat Feed.',
+        "--payload-history-remote-hosts",
+        help="Get payload history remote hosts data",
         default=False,
-        action="store_true")
+        action="store_true",
+    )
     parser.add_argument(
-        '--nodes',
-        help='Get nodes data.',
+        "--payload-history-attributes",
+        help="Get payload history attributes data",
         default=False,
-        action="store_true")
+        action="store_true",
+    )
     parser.add_argument(
-        '--netinfo-lookup',
-        help='Get netinfo for IP.',
+        "--sensor-data-count",
+        help="Get sensor data count.",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--sensor-data", help="Get sensor data.", default=False, action="store_true"
+    )
+    parser.add_argument(
+        "--services", help="Get services data.", default=False, action="store_true"
+    )
+    parser.add_argument(
+        "--stats", help="Get stats.", default=False, action="store_true"
+    )
+    parser.add_argument(
+        "--stats-asn", help="Get stats asn.", default=False, action="store_true"
+    )
+    parser.add_argument(
+        "--twitter-threat-feed",
+        help="Get Twitter Threat Feed.",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--nodes", help="Get nodes data.", default=False, action="store_true"
+    )
+    parser.add_argument(
+        "--netinfo-lookup", help="Get netinfo for IP.", type=str, default=None
+    )
+    parser.add_argument(
+        "--netinfo-network-addresses",
+        help="Get network addresses for CIDR.",
         type=str,
-        default=None)
+        default=None,
+    )
     parser.add_argument(
-        '--netinfo-network-addresses',
-        help='Get network addresses for CIDR.',
-        type=str,
-        default=None)
-    parser.add_argument(
-        '--netinfo-prefixes',
-        help='Get network prefixes for ASN.',
+        "--netinfo-prefixes",
+        help="Get network prefixes for ASN.",
         type=int,
-        default=None)
+        default=None,
+    )
     parser.add_argument(
-        '--netinfo-as-name',
-        help='Get AS name for ASN.',
+        "--netinfo-as-name", help="Get AS name for ASN.", type=int, default=None
+    )
+    parser.add_argument(
+        "--netinfo-geolocation", help="Get GEO location for IP.", type=str, default=None
+    )
+    parser.add_argument(
+        "--datacenter",
+        help="Get datacenter IP ranges.",
+        choices=[
+            "aws",
+            "azure",
+            "azure/china",
+            "azure/germany",
+            "azure/gov",
+            "gcp",
+            "ibm",
+            "oracle",
+        ],
+        default=None,
+    )
+    parser.add_argument(
+        "--mydata", help="Filter on mydata.", default=False, action="store_true"
+    )
+    parser.add_argument(
+        "--service", help="Filter bad-hosts by service name", type=str, default=None
+    )
+    parser.add_argument("--date", help="Date in format YYYY-MM-DD")
+    parser.add_argument(
+        "--year",
         type=int,
-        default=None)
+        help="Year in the format YYYY",
+    )
+    parser.add_argument("--month", type=int, help="Month in the format MM (1-12)")
     parser.add_argument(
-        '--netinfo-geolocation',
-        help='Get GEO location for IP.',
-        type=str,
-        default=None)
+        "--ip-address",
+        help="IP address to filter on (Applies to Twitter Threat Feed only).",
+    )
+    parser.add_argument("--hash", help="Hash value.")
+    parser.add_argument("--attribute", help="Attribute value", type=str, default=None)
+    parser.add_argument("--from-id", help="ID to continue retrieving sensor data.")
     parser.add_argument(
-        '--mydata',
-        help='Filter on mydata.',
+        "--pretty",
+        help="Print JSON in pretty format.",
         default=False,
-        action="store_true")
-    parser.add_argument(
-        '--service',
-        help='Filter bad-hosts by service name',
-        type=str,
-        default=None)
-    parser.add_argument(
-        '--date',
-        help='Date in format YYYY-MM-DD')
-    parser.add_argument(
-        '--ip-address',
-        help='IP address to filter on (Applies to Twitter Threat Feed only).')
-    parser.add_argument(
-        '--from-id',
-        help='ID to continue retrieving sensor data.')
-    parser.add_argument(
-        '--pretty',
-        help='Print JSON in pretty format.',
-        default=False,
-        action="store_true")
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
@@ -129,79 +167,108 @@ def main():
         parser.print_help()
 
     if args.bad_hosts:
-        print_json_data(honeydb.bad_hosts(args.service, args.mydata),
-                        args.pretty)
+        print_json_data(honeydb.bad_hosts(args.service, args.mydata), args.pretty)
+
+    if args.ip_history:
+        print_json_data(honeydb.ip_history(ip_address=args.ip_address), args.pretty)
+
+    if args.payload_history:
+        if args.year is not None or args.month is not None or args.hash is not None:
+            print_json_data(
+                honeydb.payload_history(
+                    year=args.year, month=args.month, hash=args.hash
+                ),
+                args.pretty,
+            )
+        else:
+            print("ERROR: at least one required parameter not provided.")
+
+    if args.payload_history_services:
+        print_json_data(
+            honeydb.payload_history_services(service=args.service),
+            args.pretty,
+        )
+
+    if args.payload_history_remote_hosts:
+        print_json_data(
+            honeydb.payload_history_remote_hosts(
+                remote_host=args.ip_address, hash=args.hash, year=args.year
+            ),
+            args.pretty,
+        )
+
+    if args.payload_history_attributes:
+        print_json_data(
+            honeydb.payload_history_attributes(attribute=args.attribute),
+            args.pretty,
+        )
 
     if args.sensor_data_count:
         if not args.date:
-            print('--date argument required.')
+            print("--date argument required.")
             sys.exit()
 
         print_json_data(honeydb.sensor_data_count(args.date), args.pretty)
 
     if args.sensor_data:
         if not args.date:
-            print('--date argument required.')
+            print("--date argument required.")
             sys.exit()
 
         if not args.from_id:
             print_json_data(honeydb.sensor_data(args.date), args.pretty)
         else:
             print_json_data(
-                honeydb.sensor_data(
-                    args.date,
-                    from_id=args.from_id),
-                args.pretty)
+                honeydb.sensor_data(args.date, from_id=args.from_id), args.pretty
+            )
 
     if args.services:
-        print_json_data(
-            honeydb.services(),
-            args.pretty)
+        print_json_data(honeydb.services(), args.pretty)
+
+    if args.stats:
+        print_json_data(honeydb.stats(year=args.year, month=args.month), args.pretty)
+
+    if args.stats_asn:
+        print_json_data(honeydb.stats_asn(), args.pretty)
 
     if args.twitter_threat_feed:
         if not args.ip_address:
             print_json_data(honeydb.twitter_threat_feed(), args.pretty)
         else:
             print_json_data(
-                honeydb.twitter_threat_feed(
-                    ipaddress=args.ip_address),
-                args.pretty)
+                honeydb.twitter_threat_feed(ipaddress=args.ip_address), args.pretty
+            )
 
     if args.nodes:
-        print_json_data(
-            honeydb.nodes(args.mydata),
-            args.pretty)
+        print_json_data(honeydb.nodes(args.mydata), args.pretty)
 
     if args.netinfo_lookup:
         print_json_data(
-            honeydb.netinfo_lookup(
-                ipaddress=args.netinfo_lookup),
-            args.pretty)
+            honeydb.netinfo_lookup(ipaddress=args.netinfo_lookup), args.pretty
+        )
 
     if args.netinfo_network_addresses:
         print_json_data(
-            honeydb.netinfo_network_addresses(
-                cidr=args.netinfo_network_addresses),
-            args.pretty)
+            honeydb.netinfo_network_addresses(cidr=args.netinfo_network_addresses),
+            args.pretty,
+        )
 
     if args.netinfo_prefixes:
         print_json_data(
-            honeydb.netinfo_prefixes(
-                asn=args.netinfo_prefixes),
-            args.pretty)
+            honeydb.netinfo_prefixes(asn=args.netinfo_prefixes), args.pretty
+        )
 
     if args.netinfo_as_name:
-        print_json_data(
-            honeydb.netinfo_as_name(
-                asn=args.netinfo_as_name),
-            args.pretty)
+        print_json_data(honeydb.netinfo_as_name(asn=args.netinfo_as_name), args.pretty)
 
     if args.netinfo_geolocation:
         print_json_data(
-            honeydb.netinfo_geolocation(
-                ipaddress=args.netinfo_geolocation),
-            args.pretty)
+            honeydb.netinfo_geolocation(ipaddress=args.netinfo_geolocation), args.pretty
+        )
+
+    if args.datacenter:
+        print_json_data(honeydb.datacenter(datacenter=args.datacenter), args.pretty)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

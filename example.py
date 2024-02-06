@@ -7,7 +7,6 @@ export HONEYDB_API_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export HONEYDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 """
 
-from __future__ import print_function
 import os
 import json
 import datetime
@@ -52,18 +51,6 @@ def main():
         # https://honeydb.io/threats#sensor_data_filtered
         data = honeydb.sensor_data(sensor_data_date=today, from_id=84869618)
         out(data)
-        """
-
-        # Get twitter threat feed
-        twitter = honeydb.twitter_threat_feed()
-        out(twitter)
-
-        """
-        # Example with ipaddress.
-        # See more information on using from_id here:
-        # https://honeydb.io/threats#twitter_threat_feed
-        twitter = honeydb.twitter_threat_feed(ipaddress="201.179.21.139")
-        out(twitter)
         """
 
     except Exception as error:

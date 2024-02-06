@@ -16,9 +16,13 @@ class Client(object):
     api_id = None
     api_key = None
     ep_bad_hosts = "/bad-hosts"
+    ep_ip_history = "/ip-history"
+    ep_payload_history = "/payload-history"
     ep_sensor_data_count = "/sensor-data/count"
     ep_sensor_data = "/sensor-data"
     ep_services = "/services"
+    ep_stats = "/stats"
+    ep_stats_asn = "/stats/asn"
     ep_twitter_threat_feed = "/twitter-threat-feed"
     ep_nodes = "/nodes"
     ep_netinfo_lookup = "/netinfo/lookup"
@@ -26,6 +30,7 @@ class Client(object):
     ep_netinfo_prefixes = "/netinfo/prefixes"
     ep_netinfo_as_name = "/netinfo/as-name"
     ep_netinfo_geolocation = "/netinfo/geolocation"
+    ep_datacenter = "/datacenter"
 
     def __init__(self, api_id, api_key):
         """
@@ -56,7 +61,6 @@ class Client(object):
             result = requests.post(url, json=data, headers=headers)
         else:
             raise Exception("InvalidMethod: " + str(method))
-
         return result.json()
 
     def bad_hosts(self, service=None, mydata=False):
@@ -81,6 +85,69 @@ class Client(object):
             endpoint = "{}/{}/mydata".format(service, self.ep_bad_hosts)
         else:
             endpoint = "{}/{}".format(self.ep_bad_hosts, service)
+
+        return self._make_request(endpoint=endpoint)
+
+    def ip_history(self, ip_address: str) -> dict:
+        """
+        Get IP History for given IP
+        """
+        endpoint = f"{self.ep_ip_history}/{ip_address}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history(
+        self, year: int = None, month: int = None, hash: str = None
+    ) -> dict:
+        """
+        Get payload history
+        """
+        if hash:
+            endpoint = f"{self.ep_payload_history}/{hash}"
+
+        elif year and month:
+            endpoint = f"{self.ep_payload_history}/{year}/{month}"
+
+        elif year:
+            endpoint = f"{self.ep_payload_history}/{year}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history_services(self, service: str = None) -> dict:
+        """
+        Get payload history services
+        """
+        endpoint = f"{self.ep_payload_history}/services"
+
+        if service:
+            endpoint = f"{self.ep_payload_history}/{service}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history_remote_hosts(
+        self, remote_host: str = None, hash: str = None, year: int = None
+    ) -> dict:
+        """
+        Get payload history remote hosts
+        """
+        endpoint = f"{self.ep_payload_history}/remote-hosts"
+
+        if hash and year:
+            endpoint = f"{self.ep_payload_history}/{hash}/remote-hosts/{year}"
+
+        if remote_host:
+            endpoint = f"{self.ep_payload_history}/remote-hosts/{remote_host}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def payload_history_attributes(self, attribute: str = None) -> dict:
+        """
+        Get payload history attributes
+        """
+        endpoint = f"{self.ep_payload_history}/attributes"
+
+        if attribute:
+            endpoint = f"{endpoint}/{attribute}"
 
         return self._make_request(endpoint=endpoint)
 
@@ -124,6 +191,20 @@ class Client(object):
         endpoint = self.ep_services
 
         return self._make_request(endpoint=endpoint)
+
+    def stats(self, year: int, month: int) -> dict:
+        """
+        Get stats
+        """
+        endpoint = f"{self.ep_stats}?year={year}&month={month}"
+
+        return self._make_request(endpoint=endpoint)
+
+    def stats_asn(self) -> dict:
+        """
+        Get stats-asn
+        """
+        return self._make_request(endpoint=self.ep_stats_asn)
 
     def twitter_threat_feed(self, ipaddress=None):
         """
@@ -180,4 +261,11 @@ class Client(object):
         Get GEO location for given ipaddress
         """
         endpoint = "{}/{}".format(self.ep_netinfo_geolocation, ipaddress)
+        return self._make_request(endpoint=endpoint)
+
+    def datacenter(self, datacenter: str) -> dict:
+        """
+        Get datacenter ip ranges
+        """
+        endpoint = f"{self.ep_datacenter}/{datacenter}"
         return self._make_request(endpoint=endpoint)
