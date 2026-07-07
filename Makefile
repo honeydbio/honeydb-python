@@ -1,25 +1,37 @@
+.PHONY: env format format-check lint lint-fix test build publish local-install update-from-upstream clean
+
+PY ?= .env/bin/python
+
 env:
 	python3 -m venv .env
-	.env/bin/pip3 install --upgrade pip
-	.env/bin/pip3 install --upgrade setuptools
-	.env/bin/pip3 install --upgrade requests black ruff wheel twine
+	$(PY) -m pip install --upgrade pip
+	$(PY) -m pip install --upgrade -e ".[dev]"
+
+format:
+	$(PY) -m ruff format .
 
 format-check:
-	if [ -f .env/bin/black ]; then .env/bin/black --check .; else black --check .; fi
+	$(PY) -m ruff format --check .
 
-lint-check:
-	if [ -f .env/bin/ruff ]; then .env/bin/ruff .; else ruff .; fi
+lint:
+	$(PY) -m ruff check .
 
-wheel:
-	-rm dist/*
-	.env/bin/python setup.py bdist_wheel --universal
+lint-fix:
+	$(PY) -m ruff check --fix .
+
+test:
+	$(PY) -m pytest
+
+build:
+	-rm -rf dist
+	$(PY) -m build
 
 publish:
-	.env/bin/twine upload --skip-existing dist/*
+	$(PY) -m twine upload --skip-existing dist/*
 
 local-install:
-	-.env/bin/pip3 uninstall honeydb
-	.env/bin/pip3 install dist/*
+	-$(PY) -m pip uninstall -y honeydb
+	$(PY) -m pip install dist/*.whl
 
 update-from-upstream:
 	# update master branch from honeydbio
@@ -31,5 +43,5 @@ update-from-upstream:
 
 clean:
 	find . -name "*.pyc" -type f -delete
-	rm -rf dist
-	rm -rf build
+	rm -rf dist build .pytest_cache .ruff_cache
+	find . -name "__pycache__" -type d -exec rm -rf {} +
