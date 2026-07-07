@@ -90,12 +90,6 @@ def main():
         "--stats-asn", help="Get stats asn.", default=False, action="store_true"
     )
     parser.add_argument(
-        "--twitter-threat-feed",
-        help="Get Twitter Threat Feed.",
-        default=False,
-        action="store_true",
-    )
-    parser.add_argument(
         "--nodes", help="Get nodes data.", default=False, action="store_true"
     )
     parser.add_argument(
@@ -149,7 +143,7 @@ def main():
     parser.add_argument("--month", type=int, help="Month in the format MM (1-12)")
     parser.add_argument(
         "--ip-address",
-        help="IP address to filter on (Applies to Twitter Threat Feed only).",
+        help="IP address to filter on.",
     )
     parser.add_argument("--hash", help="Hash value.")
     parser.add_argument("--attribute", help="Attribute value", type=str, default=None)
@@ -230,14 +224,6 @@ def main():
 
     if args.stats_asn:
         print_json_data(honeydb.stats_asn(), args.pretty)
-
-    if args.twitter_threat_feed:
-        if not args.ip_address:
-            print_json_data(honeydb.twitter_threat_feed(), args.pretty)
-        else:
-            print_json_data(
-                honeydb.twitter_threat_feed(ipaddress=args.ip_address), args.pretty
-            )
 
     if args.nodes:
         print_json_data(honeydb.nodes(args.mydata), args.pretty)

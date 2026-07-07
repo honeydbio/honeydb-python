@@ -23,7 +23,6 @@ class Client(object):
     ep_services = "/services"
     ep_stats = "/stats"
     ep_stats_asn = "/stats/asn"
-    ep_twitter_threat_feed = "/twitter-threat-feed"
     ep_nodes = "/nodes"
     ep_netinfo_lookup = "/netinfo/lookup"
     ep_netinfo_network_addresses = "/netinfo/network-addresses"
@@ -205,17 +204,6 @@ class Client(object):
         Get stats-asn
         """
         return self._make_request(endpoint=self.ep_stats_asn)
-
-    def twitter_threat_feed(self, ipaddress=None):
-        """
-        Get twitter threat feed
-        """
-        if ipaddress is not None:
-            endpoint = "{}/{}".format(self.ep_twitter_threat_feed, ipaddress)
-        else:
-            endpoint = self.ep_twitter_threat_feed
-
-        return self._make_request(endpoint=endpoint)
 
     def nodes(self, mydata=False):
         """

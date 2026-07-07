@@ -102,3 +102,6 @@ ENV/
 .vscode/settings.json
 
 .env3/
+
+# Claude Code
+.claude/
