@@ -1,60 +1,59 @@
-#!/usr/bin/env python
-"""
-Example script for using the HoneyDB API client
+#!/usr/bin/env python3
+"""Example usage of the HoneyDB API client.
 
-In this example, API credentials must be exported to environment variables:
-export HONEYDB_API_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-export HONEYDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Credentials are read from environment variables:
+
+    export HONEYDB_API_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    export HONEYDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 """
 
-import os
-import json
 import datetime
-from honeydb import api
+import json
+import os
+
+from honeydb import Client, HoneyDBError
 
 
-def out(json_data):
-    """
-    Output json data in pretty format
-    """
-    print(json.dumps(json_data, indent=4))
+def out(data: object) -> None:
+    """Pretty-print JSON data."""
+    print(json.dumps(data, indent=2, sort_keys=True))
 
 
-def main():
-    """
-    The main fuction for executing example code
-    """
-
-    # Get API keys from environment variables and create the
-    # HoneyDB Client API object.
+def main() -> None:
     api_id = os.environ["HONEYDB_API_ID"]
     api_key = os.environ["HONEYDB_API_KEY"]
-    honeydb = api.Client(api_id, api_key)
 
-    try:
-        # Get bad hosts
-        bad_hosts = honeydb.bad_hosts()
-        out(bad_hosts)
+    # The client is a context manager so its connection pool is cleaned up.
+    with Client(api_id, api_key) as honeydb:
+        try:
+            # Bad hosts seen across the honeypot network in the last 24 hours.
+            out(honeydb.bad_hosts())
 
-        # Get sensor data count
-        today = datetime.datetime.today().strftime("%Y-%m-%d")
-        data_count = honeydb.sensor_data_count(sensor_data_date=today)
-        out(data_count)
+            # Full context for an IP address (netinfo, threat, history, ...).
+            out(honeydb.ip("8.8.8.8"))
 
-        # Get sensor data
-        data = honeydb.sensor_data(sensor_data_date=today)
-        out(data)
+            # Check an IP against known IP lists.
+            out(honeydb.ipinfo("8.8.8.8"))
+            out(honeydb.ipinfo_source("tor", "8.8.8.8"))
 
-        """
-        # Example with from_id.
-        # See more information on using from_id here:
-        # https://honeydb.io/threats#sensor_data_filtered
-        data = honeydb.sensor_data(sensor_data_date=today, from_id=84869618)
-        out(data)
-        """
+            # Network info lookups do not count against your monthly limit.
+            out(honeydb.netinfo_as_name(15169))
 
-    except Exception as error:
-        print(str(error))
+            # Your own sensor data for today.
+            today = datetime.date.today().isoformat()
+            out(honeydb.sensor_data_count(today))
+            out(honeydb.sensor_data(today))
+
+            # Manage monitors.
+            out(honeydb.monitors())
+            # honeydb.create_monitors([
+            #     {"monitor_type": "asn", "monitor_value": "401120",
+            #      "description": "ASN Example"},
+            # ])
+            # honeydb.delete_monitors([122, 123])
+
+        except HoneyDBError as error:
+            print(f"HoneyDB API error: {error}")
 
 
 if __name__ == "__main__":

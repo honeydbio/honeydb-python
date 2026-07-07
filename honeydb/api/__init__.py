@@ -1,5 +1,5 @@
-"""
-HoneyDB API Module
-"""
+"""HoneyDB API module."""
 
-from .client import Client  # noqa: F401
+from honeydb.api.client import DATACENTER_PROVIDERS, IPINFO_SOURCES, Client
+
+__all__ = ["Client", "DATACENTER_PROVIDERS", "IPINFO_SOURCES"]
