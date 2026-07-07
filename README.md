@@ -1,6 +1,6 @@
 # honeydb-python
 
-[![Format, Lint & Test](https://github.com/honeydbio/honeydb-python/actions/workflows/format-lint.yml/badge.svg)](https://github.com/honeydbio/honeydb-python/actions/workflows/format-lint.yml)
+[![Format, Lint & Test](https://github.com/honeydbio/honeydb-python/actions/workflows/format-lint.yml/badge.svg?branch=master)](https://github.com/honeydbio/honeydb-python/actions/workflows/format-lint.yml?query=branch%3Amaster)
 [![PyPI version](https://img.shields.io/pypi/v/honeydb.svg)](https://pypi.org/project/honeydb/)
 [![Python versions](https://img.shields.io/pypi/pyversions/honeydb.svg)](https://pypi.org/project/honeydb/)
 
