@@ -3,7 +3,12 @@
 See https://honeydb.io for more information.
 """
 
-from honeydb.api.client import DATACENTER_PROVIDERS, IPINFO_SOURCES, Client
+from honeydb.api.client import (
+    ASN_RISK_SCANNERS,
+    DATACENTER_PROVIDERS,
+    IPINFO_SOURCES,
+    Client,
+)
 from honeydb.exceptions import (
     HoneyDBAuthError,
     HoneyDBError,
@@ -11,10 +16,11 @@ from honeydb.exceptions import (
     HoneyDBRateLimitError,
 )
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 
 __all__ = [
     "Client",
+    "ASN_RISK_SCANNERS",
     "DATACENTER_PROVIDERS",
     "IPINFO_SOURCES",
     "HoneyDBError",

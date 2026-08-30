@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from honeydb import (
+    ASN_RISK_SCANNERS,
     Client,
     HoneyDBAuthError,
     HoneyDBError,
@@ -123,6 +124,136 @@ def test_netinfo_as_name(client, requests_mock):
     m = requests_mock.get(f"{BASE}/netinfo/as-name/15169", json={"name": "GOOGLE"})
     assert client.netinfo_as_name(15169) == {"name": "GOOGLE"}
     assert m.last_request.path == "/api/netinfo/as-name/15169"
+
+
+# -- asn risk -------------------------------------------------------------
+
+
+def test_asn_risk_sends_no_params_by_default(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={"report_month": "2026-08"})
+    client.asn_risk()
+    assert m.last_request.path == "/api/asn-risk"
+    assert m.last_request.qs == {}
+
+
+def test_asn_risk_period_only(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    client.asn_risk(period="2026-07")
+    assert m.last_request.qs == {"period": ["2026-07"]}
+
+
+def test_asn_risk_all_params(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    client.asn_risk(period="2026-08", limit=250, scanners="exclude")
+    assert m.last_request.qs == {
+        "period": ["2026-08"],
+        "limit": ["250"],
+        "scanners": ["exclude"],
+    }
+
+
+def test_asn_risk_limit_all_sentinel(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    client.asn_risk(limit="all")
+    assert m.last_request.qs == {"limit": ["all"]}
+
+
+def test_asn_risk_limit_int_is_stringified(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    client.asn_risk(limit=25)
+    assert m.last_request.qs == {"limit": ["25"]}
+
+
+def test_asn_risk_limit_digit_string(client, requests_mock):
+    # The CLI hands --limit over as a string; digit-strings must be accepted.
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    client.asn_risk(limit="25")
+    assert m.last_request.qs == {"limit": ["25"]}
+
+
+@pytest.mark.parametrize("period", ["2026-13", "26-07", "2026-7", "2026", 202607])
+def test_asn_risk_invalid_period_makes_no_request(client, requests_mock, period):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    with pytest.raises(ValueError, match="Invalid period"):
+        client.asn_risk(period=period)
+    assert m.call_count == 0
+
+
+@pytest.mark.parametrize("limit", [0, -1, "0", 100000, "123456", "none"])
+def test_asn_risk_invalid_limit_makes_no_request(client, requests_mock, limit):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    with pytest.raises(ValueError, match="Invalid limit"):
+        client.asn_risk(limit=limit)
+    assert m.call_count == 0
+
+
+def test_asn_risk_bool_limit_rejected(client, requests_mock):
+    # bool is a subclass of int; limit=True must not slip through as limit=1.
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    with pytest.raises(ValueError, match="Invalid limit"):
+        client.asn_risk(limit=True)
+    assert m.call_count == 0
+
+
+def test_asn_risk_invalid_scanners(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    with pytest.raises(ValueError, match="Unknown scanners filter"):
+        client.asn_risk(scanners="nope")
+    assert m.call_count == 0
+
+
+def test_asn_risk_no_data_returns_empty_list(client, requests_mock):
+    # A month with no report object is a 200 [] -- not a 404, and not an error.
+    requests_mock.get(f"{BASE}/asn-risk", json=[])
+    assert client.asn_risk(period="2020-01") == []
+
+
+def test_asn_risk_history_path(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn/15169/risk", json={"asn": "15169"})
+    assert client.asn_risk_history(15169) == {"asn": "15169"}
+    assert m.last_request.path == "/api/asn/15169/risk"
+
+
+def test_asn_risk_history_accepts_string_asn(client, requests_mock):
+    m = requests_mock.get(f"{BASE}/asn/15169/risk", json={})
+    client.asn_risk_history("15169")
+    assert m.last_request.path == "/api/asn/15169/risk"
+
+
+def test_asn_risk_history_non_numeric_asn_is_not_found(client, requests_mock):
+    # A non-numeric ASN misses the router's ^[0-9]{1,10}$ match and gets the
+    # branded HTML 404 page rather than JSON.
+    requests_mock.get(
+        f"{BASE}/asn/abc/risk",
+        status_code=404,
+        text="<!DOCTYPE html><html><body>Page not found</body></html>",
+    )
+    with pytest.raises(HoneyDBNotFoundError):
+        client.asn_risk_history("abc")
+
+
+def test_asn_risk_history_no_data_returns_empty_list(client, requests_mock):
+    requests_mock.get(f"{BASE}/asn/64512/risk", json=[])
+    assert client.asn_risk_history(64512) == []
+
+
+def test_asn_risk_scanners_exported_from_every_surface():
+    import honeydb
+    import honeydb.api
+    import honeydb.api.client
+
+    for module in (honeydb, honeydb.api, honeydb.api.client):
+        assert module.ASN_RISK_SCANNERS == ("exclude", "only", "include")
+        assert "ASN_RISK_SCANNERS" in module.__all__
+    assert ASN_RISK_SCANNERS == honeydb.api.client.ASN_RISK_SCANNERS
+
+
+def test_version_matches_package_metadata():
+    from importlib.metadata import version
+
+    import honeydb
+
+    assert version("honeydb") == honeydb.__version__
 
 
 @pytest.mark.parametrize(

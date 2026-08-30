@@ -54,6 +54,13 @@ honeydb ip 8.8.8.8 --geo
 honeydb asn 15169
 honeydb asn 15169 --prefixes
 
+# That ASN's risk score and monthly history
+honeydb asn 15169 --risk
+
+# The monthly ASN risk report (pass --limit; the uncapped report is ~600 KB)
+honeydb asn-risk --limit 25 --pretty
+honeydb asn-risk --period 2026-07 --limit 25 --scanners exclude
+
 # Check an IP against a specific list
 honeydb ipinfo 185.220.101.1 --source tor
 
@@ -81,7 +88,8 @@ stderr with a non-zero exit code.
 | `bad-hosts [--service S] [--mydata]` | Bad hosts (last 24h), optionally by service. |
 | `ip <ip> [--geo\|--netinfo\|--threatinfo\|--scanner\|--history\|--cve]` | IP context, or a single view. |
 | `ip-cidr <cidr>` | All IP addresses within a network range. |
-| `asn <n> [--prefixes]` | ASN organization info or its prefixes. |
+| `asn <n> [--prefixes\|--risk]` | ASN organization info, its prefixes, or its risk history. |
+| `asn-risk [--period YYYY-MM] [--limit N\|all] [--scanners S]` | The monthly ASN risk report. |
 | `asns [--days 1\|7]` | ASNs seen in the last 1 (default) or 7 days. |
 | `cve <cve>` | IP history for a CVE. |
 | `cve-ip <ip>` | CVE history for an IP. |
@@ -98,6 +106,8 @@ stderr with a non-zero exit code.
 
 `ipinfo --source` values: `bogon`, `tor`, `sansip`, `ciarmy`, `et-compromised`,
 `project-honeypot`, `pallebone`, `threatfox`, `blocklist_net_ua`.
+
+`asn-risk --scanners` values: `exclude`, `only`, `include`.
 
 `datacenter` providers: `aws`, `azure`, `azure/china`, `azure/germany`, `azure/gov`,
 `cloudflare`, `gcp`, `ibm`, `oracle`.
@@ -153,15 +163,70 @@ with Client("api_id", "api_key") as honeydb:
 
 ```python
 with Client("api_id", "api_key") as honeydb:
-    honeydb.create_monitors([
-        {"monitor_type": "ip_address", "ip_address": "196.251.81.54",
-         "description": "IP Address Example"},
-        {"monitor_type": "asn", "monitor_value": "401120",
-         "description": "ASN Example"},
-    ])
+    honeydb.create_monitors(
+        [
+            {
+                "monitor_type": "ip_address",
+                "ip_address": "196.251.81.54",
+                "description": "IP Address Example",
+            },
+            {
+                "monitor_type": "asn",
+                "monitor_value": "401120",
+                "description": "ASN Example",
+            },
+        ]
+    )
     monitors = honeydb.monitors()
     honeydb.delete_monitors([m["id"] for m in monitors])
 ```
+
+### ASN risk
+
+```python
+with Client("api_id", "api_key") as honeydb:
+    # Call with no period first: available_months lists the periods you can ask
+    # for, and it is attached only to a successful response.
+    report = honeydb.asn_risk(limit=25)
+    months = report["available_months"]
+
+    july = honeydb.asn_risk(period=months[-1], limit=25, scanners="exclude")
+    history = honeydb.asn_risk_history(15169)
+```
+
+Both methods return parsed JSON: an object on success. Read the notes below
+before consuming either.
+
+- **An empty list means no data.** Both endpoints answer `200 []` when the data
+  does not exist — no report for the requested month, or the ASN was not scored
+  anywhere in the six-month look-back window. This is deliberate API policy: a
+  missing object is never a 404. Branch on emptiness before subscripting, since
+  the return value is a `dict`-or-`[]` union.
+- **Discover periods from the response, not by guessing.** `available_months`
+  lists every month the API holds a report for, newest first — but the API
+  attaches it only to a *successful* report response, so a wrong `period` gets
+  you a bare `[]` with no month list. Call with no `period` first, then request
+  a specific month.
+- **Branch on `methodology.version`.** Reports come in two generations, `"1.0"`
+  (July 2026) and `"2.0"` (August 2026 onward), which carry different row
+  fields. The client passes the document through untouched and does not
+  normalize between them, so check the version rather than assuming a field
+  exists.
+- **`scanners` only does anything on 2.0 reports.** The `scanner` row flag it
+  filters on exists only on 2.0 rows. Against a 1.0 report, `exclude` is a
+  silent no-op and `only` returns a *full report document* whose `asns` is `[]`
+  and `asns_returned` is `0` — a third response shape, distinct from both the
+  success object and the `200 []` no-data case.
+- **`summary` describes the whole month**, not the rows you got back. It is
+  computed before the `scanners` and `limit` filters are applied, so
+  `asns_scored`, the score histogram, `score_median`, `score_p90` and
+  `top_by_component` cover the full report even when you asked for 25 rows.
+- **Ranks are not renumbered** by filtering or capping, so a filtered view still
+  shows each ASN's true rank in the month.
+- **Pass a `limit` interactively.** The uncapped default report is roughly
+  600 KB of JSON.
+
+Both calls count against your monthly request limit.
 
 ## API reference
 
@@ -170,7 +235,8 @@ The `Client` exposes one method per endpoint, grouped below.
 - **Bad hosts:** `bad_hosts(mydata=False)`, `bad_hosts_by_service(service, mydata=False)`
 - **IP context:** `ip(ip)`, `ip_geo(ip)`, `ip_netinfo(ip)`, `ip_threatinfo(ip)`,
   `ip_internet_scanner(ip)`, `ip_history(ip)`, `ip_cve(ip)`, `ip_cidr(cidr)`
-- **ASN:** `asn(n)`, `asn_prefixes(n)`, `asns()`, `asns_7d()`
+- **ASN:** `asn(n)`, `asn_prefixes(n)`, `asn_risk(period=None, limit=None, scanners=None)`,
+  `asn_risk_history(n)`, `asns()`, `asns_7d()`
 - **CVE:** `cve(cve)`, `cve_ip(ip)`
 - **Sensor data:** `sensor_data(date, from_id=None, mydata=True)`, `sensor_data_count(date, mydata=True)`
 - **Services / stats:** `services()`, `stats(year, month)`
