@@ -39,6 +39,14 @@ def main() -> None:
             # Network info lookups do not count against your monthly limit.
             out(honeydb.netinfo_as_name(15169))
 
+            # The monthly ASN risk report. Always pass a limit interactively:
+            # the uncapped report is ~600 KB of JSON. An empty list means no
+            # report exists for that month.
+            out(honeydb.asn_risk(limit=25))
+
+            # One ASN's latest risk row plus up to six months of history.
+            out(honeydb.asn_risk_history(15169))
+
             # Your own sensor data for today.
             today = datetime.date.today().isoformat()
             out(honeydb.sensor_data_count(today))

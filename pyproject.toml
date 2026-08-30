@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "honeydb"
-version = "2.0.0"
+version = "2.1.0"
 description = "A Python API wrapper and CLI tool for HoneyDB."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,7 +35,7 @@ Repository = "https://github.com/honeydbio/honeydb-python"
 honeydb = "honeydb.cli:main"
 
 [project.optional-dependencies]
-dev = ["ruff", "build", "twine", "pytest", "requests-mock"]
+dev = ["ruff>=0.16,<0.17", "build", "twine", "pytest", "requests-mock"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["honeydb"]

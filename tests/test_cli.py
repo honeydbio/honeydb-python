@@ -65,6 +65,75 @@ def test_asn_prefixes(requests_mock):
     assert m.last_request.path == "/api/asn/15169/prefixes"
 
 
+def test_asn_default_no_flag(requests_mock):
+    m = requests_mock.get(f"{BASE}/asn/15169", json={})
+    run(["asn", "15169"])
+    assert m.last_request.path == "/api/asn/15169"
+
+
+def test_asn_risk_flag(requests_mock):
+    m = requests_mock.get(f"{BASE}/asn/15169/risk", json={})
+    run(["asn", "15169", "--risk"])
+    assert m.last_request.path == "/api/asn/15169/risk"
+
+
+def test_asn_risk_and_prefixes_are_mutually_exclusive():
+    with pytest.raises(SystemExit):
+        run(["asn", "15169", "--risk", "--prefixes"])
+
+
+def test_asn_risk_command_no_flags(requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    assert run(["asn-risk"]) == 0
+    assert m.last_request.path == "/api/asn-risk"
+    assert m.last_request.qs == {}
+
+
+def test_asn_risk_command_all_flags(requests_mock):
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    run(["asn-risk", "--period", "2026-07", "--limit", "all", "--scanners", "only"])
+    assert m.last_request.qs == {
+        "period": ["2026-07"],
+        "limit": ["all"],
+        "scanners": ["only"],
+    }
+
+
+def test_asn_risk_command_numeric_limit(requests_mock):
+    # --limit arrives as a string and must reach the API unconverted.
+    m = requests_mock.get(f"{BASE}/asn-risk", json={})
+    assert run(["asn-risk", "--limit", "25"]) == 0
+    assert m.last_request.qs == {"limit": ["25"]}
+
+
+def test_asn_risk_invalid_scanners_exits(requests_mock):
+    with pytest.raises(SystemExit):
+        run(["asn-risk", "--scanners", "nope"])
+
+
+def test_asn_risk_invalid_period_returns_1(capsys, requests_mock):
+    assert run(["asn-risk", "--period", "2026-13"]) == 1
+    assert "error:" in capsys.readouterr().err
+
+
+def test_asn_risk_command_pretty(capsys, requests_mock):
+    requests_mock.get(f"{BASE}/asn-risk", json={"report_month": "2026-08"})
+    assert run(["asn-risk", "--limit", "5", "--pretty"]) == 0
+    assert "\n" in capsys.readouterr().out.strip()
+
+
+def test_asn_risk_flag_pretty(capsys, requests_mock):
+    requests_mock.get(f"{BASE}/asn/15169/risk", json={"asn": "15169"})
+    assert run(["asn", "15169", "--risk", "--pretty"]) == 0
+    assert "\n" in capsys.readouterr().out.strip()
+
+
+def test_monitors_create_bad_json_returns_1(capsys, requests_mock):
+    # json.JSONDecodeError subclasses ValueError, which main() now catches.
+    assert run(["monitors", "create", "--json", "{bad"]) == 1
+    assert "error:" in capsys.readouterr().err
+
+
 def test_monitors_list(requests_mock):
     m = requests_mock.get(f"{BASE}/monitors", json=[])
     run(["monitors", "list"])

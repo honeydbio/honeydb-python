@@ -7,6 +7,7 @@ retries on transient failures.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 from urllib.parse import quote
 
@@ -21,7 +22,7 @@ from honeydb.exceptions import (
     HoneyDBRateLimitError,
 )
 
-__all__ = ["Client", "DATACENTER_PROVIDERS", "IPINFO_SOURCES"]
+__all__ = ["ASN_RISK_SCANNERS", "Client", "DATACENTER_PROVIDERS", "IPINFO_SOURCES"]
 
 #: IP list sources supported by the ``/ipinfo/<source>`` endpoints.
 IPINFO_SOURCES: tuple[str, ...] = (
@@ -49,7 +50,88 @@ DATACENTER_PROVIDERS: tuple[str, ...] = (
     "oracle",
 )
 
+#: Scanner filters accepted by the ``/asn-risk`` endpoint. Mirrors the API's
+#: ``scanners`` validator (``/^(exclude|only|include)$/``).
+ASN_RISK_SCANNERS: tuple[str, ...] = (
+    "exclude",
+    "only",
+    "include",
+)
+
+# Shapes accepted by the ``/asn-risk`` validators: ``period`` is
+# ``/^[0-9]{4}-(0[1-9]|1[0-2])$/`` and ``limit`` is ``/^([0-9]{1,5}|all)$/``.
+_PERIOD_RE = re.compile(r"^[0-9]{4}-(0[1-9]|1[0-2])$")
+_LIMIT_DIGITS_RE = re.compile(r"^[0-9]{1,5}$")
+_LIMIT_ALL = "all"
+# 0 is rejected because the API silently floors it to 1; the ceiling is the
+# largest value the API's 5-digit ``limit`` validator accepts.
+_LIMIT_MIN = 1
+_LIMIT_MAX = 99999
+
 JSON = Any
+
+
+# -- argument validation ---------------------------------------------------
+
+
+def _validate_period(period: str | None) -> str | None:
+    """Return ``period`` unchanged, or ``None``.
+
+    Raises:
+        ValueError: If ``period`` is not a ``YYYY-MM`` month.
+    """
+    if period is None:
+        return None
+    if not isinstance(period, str) or not _PERIOD_RE.match(period):
+        raise ValueError(
+            f"Invalid period {period!r}; expected a YYYY-MM month, e.g. '2026-08'"
+        )
+    return period
+
+
+def _validate_limit(limit: int | str | None) -> str | None:
+    """Return the query-string form of ``limit``, or ``None``.
+
+    Accepts ``"all"``, an ``int`` from 1 to 99999, or a string of 1-5 decimal
+    digits (the form the CLI's ``--limit`` produces).
+
+    Raises:
+        ValueError: If ``limit`` is none of those.
+    """
+    if limit is None:
+        return None
+    if limit == _LIMIT_ALL:
+        return _LIMIT_ALL
+    # bool is a subclass of int, so limit=True must not pass as limit=1.
+    if isinstance(limit, int) and not isinstance(limit, bool):
+        if _LIMIT_MIN <= limit <= _LIMIT_MAX:
+            return str(limit)
+    elif (
+        isinstance(limit, str)
+        and _LIMIT_DIGITS_RE.match(limit)
+        and int(limit) >= _LIMIT_MIN
+    ):
+        return limit
+    raise ValueError(
+        f"Invalid limit {limit!r}; expected {_LIMIT_ALL!r} or an integer "
+        f"between {_LIMIT_MIN} and {_LIMIT_MAX}"
+    )
+
+
+def _validate_scanners(scanners: str | None) -> str | None:
+    """Return ``scanners`` unchanged, or ``None``.
+
+    Raises:
+        ValueError: If ``scanners`` is not one of :data:`ASN_RISK_SCANNERS`.
+    """
+    if scanners is None:
+        return None
+    if scanners not in ASN_RISK_SCANNERS:
+        raise ValueError(
+            f"Unknown scanners filter {scanners!r}; "
+            f"expected one of {', '.join(ASN_RISK_SCANNERS)}"
+        )
+    return scanners
 
 
 class Client:
@@ -269,6 +351,52 @@ class Client:
     def asn_prefixes(self, as_number: int | str) -> JSON:
         """Return IP prefixes for an ASN. Does not count against limits."""
         return self._request("GET", f"/asn/{self._seg(as_number)}/prefixes")
+
+    def asn_risk(
+        self,
+        *,
+        period: str | None = None,
+        limit: int | str | None = None,
+        scanners: str | None = None,
+    ) -> JSON:
+        """Return the monthly ASN risk report. Counts against monthly limits.
+
+        Args:
+            period: Report month as ``YYYY-MM``. Omit for the newest report.
+            limit: Row cap: ``"all"``, an ``int`` from 1 to 99999, or a string
+                of 1-5 decimal digits. Omit for an uncapped report.
+            scanners: Row filter, one of :data:`ASN_RISK_SCANNERS`. Omit for
+                no filtering.
+
+        Returns:
+            The parsed JSON body: a report object on success, or an empty list
+            when no report exists for that month. ``available_months`` lists
+            the valid ``period`` values, but it is present only on a
+            successful response -- so call with no ``period`` first, read the
+            months off that response, then request a specific one. The
+            uncapped report is large (~600 KB); pass ``limit`` for interactive
+            use.
+
+        Raises:
+            ValueError: If ``period``, ``limit`` or ``scanners`` is malformed.
+        """
+        validated = {
+            "period": _validate_period(period),
+            "limit": _validate_limit(limit),
+            "scanners": _validate_scanners(scanners),
+        }
+        params = {key: value for key, value in validated.items() if value is not None}
+        return self._request("GET", "/asn-risk", params=params)
+
+    def asn_risk_history(self, as_number: int | str) -> JSON:
+        """Return an ASN's latest risk row plus history. Counts against limits.
+
+        Returns:
+            The parsed JSON body: an object carrying the latest month's row and
+            up to six months of history, or an empty list when the ASN was not
+            scored anywhere in that window.
+        """
+        return self._request("GET", f"/asn/{self._seg(as_number)}/risk")
 
     def asns(self) -> JSON:
         """Return ASNs that interacted with the network in the previous day."""

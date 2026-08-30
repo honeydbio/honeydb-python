@@ -16,7 +16,12 @@ from collections.abc import Sequence
 from typing import Any
 
 from honeydb import __version__
-from honeydb.api.client import DATACENTER_PROVIDERS, IPINFO_SOURCES, Client
+from honeydb.api.client import (
+    ASN_RISK_SCANNERS,
+    DATACENTER_PROVIDERS,
+    IPINFO_SOURCES,
+    Client,
+)
 from honeydb.exceptions import HoneyDBError
 
 PROG = "honeydb"
@@ -60,9 +65,17 @@ def _cmd_ip_cidr(client: Client, args: argparse.Namespace) -> Any:
 
 
 def _cmd_asn(client: Client, args: argparse.Namespace) -> Any:
-    if args.prefixes:
+    if args.view == "prefixes":
         return client.asn_prefixes(args.as_number)
+    if args.view == "risk":
+        return client.asn_risk_history(args.as_number)
     return client.asn(args.as_number)
+
+
+def _cmd_asn_risk(client: Client, args: argparse.Namespace) -> Any:
+    # No validation or conversion here: the client owns both, so --limit is
+    # forwarded as the string argparse produced (which may be "all").
+    return client.asn_risk(period=args.period, limit=args.limit, scanners=args.scanners)
 
 
 def _cmd_asns(client: Client, args: argparse.Namespace) -> Any:
@@ -254,12 +267,35 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=_cmd_ip_cidr)
 
     # asn
-    p = add("asn", help="Get ASN organization info.")
+    p = add("asn", help="Get ASN organization info, prefixes or risk history.")
     p.add_argument("as_number", help="Autonomous System number.")
+    view = p.add_mutually_exclusive_group()
+    for name, flag, description in (
+        ("prefixes", "--prefixes", "IP prefixes for the ASN"),
+        ("risk", "--risk", "risk score and monthly history for the ASN"),
+    ):
+        view.add_argument(
+            flag,
+            dest="view",
+            action="store_const",
+            const=name,
+            help=f"Return the {description}.",
+        )
+    p.set_defaults(func=_cmd_asn, view=None)
+
+    # asn-risk
+    p = add("asn-risk", help="Get the monthly ASN risk report.")
+    p.add_argument("--period", help="Report month as YYYY-MM (default: latest).")
     p.add_argument(
-        "--prefixes", action="store_true", help="Return IP prefixes for the ASN."
+        "--limit",
+        help="Cap on returned rows: 1-99999, or 'all' (default: no cap).",
     )
-    p.set_defaults(func=_cmd_asn)
+    p.add_argument(
+        "--scanners",
+        choices=ASN_RISK_SCANNERS,
+        help="Filter rows by their internet-scanner flag.",
+    )
+    p.set_defaults(func=_cmd_asn_risk)
 
     # asns
     p = add("asns", help="List ASNs seen interacting with the network.")
@@ -413,7 +449,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         with Client(api_id, api_key, timeout=timeout) as client:
             result = args.func(client, args)
-    except HoneyDBError as error:
+    except (HoneyDBError, ValueError) as error:
+        # ValueError covers client-side argument validation (e.g. a malformed
+        # --period) and json.JSONDecodeError from `monitors create --json`.
         print(f"error: {error}", file=sys.stderr)
         return 1
 
