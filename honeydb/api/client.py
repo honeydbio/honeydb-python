@@ -460,7 +460,7 @@ class Client:
     # -- monitors ---------------------------------------------------------
 
     def monitors(self) -> JSON:
-        """Return the list of current monitors. Does not count against monthly limits."""
+        """Return the list of current monitors. Not counted against monthly limits."""
         return self._request("GET", "/monitors")
 
     def create_monitors(self, monitors: list[dict[str, Any]]) -> JSON:
@@ -608,15 +608,24 @@ class Client:
     # -- netinfo ----------------------------------------------------------
 
     def netinfo_lookup(self, ip_address: str) -> JSON:
-        """Return AS, network info and geolocation for an IP. Counts against monthly limits."""
+        """Return AS, network info and geolocation for an IP.
+
+        Counts against monthly limits.
+        """
         return self._request("GET", f"/netinfo/lookup/{self._seg(ip_address)}")
 
     def netinfo_network_addresses(self, cidr: str) -> JSON:
-        """Return all IP addresses within a network range. Counts against monthly limits."""
+        """Return all IP addresses within a network range.
+
+        Counts against monthly limits.
+        """
         return self._request("GET", f"/netinfo/network-addresses/{self._seg(cidr)}")
 
     def netinfo_prefixes(self, asn: int | str) -> JSON:
-        """Return all prefixes advertised for an AS network. Counts against monthly limits."""
+        """Return all prefixes advertised for an AS network.
+
+        Counts against monthly limits.
+        """
         return self._request("GET", f"/netinfo/prefixes/{self._seg(asn)}")
 
     def netinfo_as_name(self, asn: int | str) -> JSON:
@@ -630,9 +639,10 @@ class Client:
     # -- datacenter -------------------------------------------------------
 
     def datacenter(self, provider: str) -> JSON:
-        """Return datacenter/cloud IP ranges for a provider. Does not count against monthly limits.
+        """Return datacenter/cloud IP ranges for a provider.
 
-        See https://honeydb.io/threats for the full list of uncounted endpoints.
+        Does not count against monthly limits. See https://honeydb.io/threats
+        for the full list of uncounted endpoints.
 
         Args:
             provider: One of :data:`DATACENTER_PROVIDERS` (e.g. ``"aws"``,
