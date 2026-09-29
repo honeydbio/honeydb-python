@@ -36,7 +36,7 @@ def main() -> None:
             out(honeydb.ipinfo("8.8.8.8"))
             out(honeydb.ipinfo_source("tor", "8.8.8.8"))
 
-            # Network info lookups do not count against your monthly limit.
+            # Network info lookups count against your monthly limit.
             out(honeydb.netinfo_as_name(15169))
 
             # The monthly ASN risk report. Always pass a limit interactively:

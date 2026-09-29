@@ -345,11 +345,11 @@ class Client:
     # -- asn --------------------------------------------------------------
 
     def asn(self, as_number: int | str) -> JSON:
-        """Return AS number and organization name. Does not count against limits."""
+        """Return AS number and organization name. Counts against monthly limits."""
         return self._request("GET", f"/asn/{self._seg(as_number)}")
 
     def asn_prefixes(self, as_number: int | str) -> JSON:
-        """Return IP prefixes for an ASN. Does not count against limits."""
+        """Return IP prefixes for an ASN. Counts against monthly limits."""
         return self._request("GET", f"/asn/{self._seg(as_number)}/prefixes")
 
     def asn_risk(
@@ -460,7 +460,7 @@ class Client:
     # -- monitors ---------------------------------------------------------
 
     def monitors(self) -> JSON:
-        """Return the list of current monitors."""
+        """Return the list of current monitors. Not counted against monthly limits."""
         return self._request("GET", "/monitors")
 
     def create_monitors(self, monitors: list[dict[str, Any]]) -> JSON:
@@ -494,6 +494,8 @@ class Client:
 
     def nodes(self, mydata: bool = False) -> JSON:
         """Return honeydb-agent nodes seen in the last 3 days.
+
+        Does not count against monthly limits.
 
         Args:
             mydata: If ``True``, return only your nodes.
@@ -603,32 +605,44 @@ class Client:
             "GET", f"/ipinfo/{self._seg(source)}/{self._seg(ip_address)}"
         )
 
-    # -- netinfo (no monthly limit) --------------------------------------
+    # -- netinfo ----------------------------------------------------------
 
     def netinfo_lookup(self, ip_address: str) -> JSON:
-        """Return AS, network info and geolocation for an IP. No monthly limit."""
+        """Return AS, network info and geolocation for an IP.
+
+        Counts against monthly limits.
+        """
         return self._request("GET", f"/netinfo/lookup/{self._seg(ip_address)}")
 
     def netinfo_network_addresses(self, cidr: str) -> JSON:
-        """Return all IP addresses within a network range. No monthly limit."""
+        """Return all IP addresses within a network range.
+
+        Counts against monthly limits.
+        """
         return self._request("GET", f"/netinfo/network-addresses/{self._seg(cidr)}")
 
     def netinfo_prefixes(self, asn: int | str) -> JSON:
-        """Return all prefixes advertised for an AS network. No monthly limit."""
+        """Return all prefixes advertised for an AS network.
+
+        Counts against monthly limits.
+        """
         return self._request("GET", f"/netinfo/prefixes/{self._seg(asn)}")
 
     def netinfo_as_name(self, asn: int | str) -> JSON:
-        """Return the name of an AS network. No monthly limit."""
+        """Return the name of an AS network. Counts against monthly limits."""
         return self._request("GET", f"/netinfo/as-name/{self._seg(asn)}")
 
     def netinfo_geolocation(self, ip_address: str) -> JSON:
-        """Return geolocation information for an IP. No monthly limit."""
+        """Return geolocation information for an IP. Counts against monthly limits."""
         return self._request("GET", f"/netinfo/geolocation/{self._seg(ip_address)}")
 
     # -- datacenter -------------------------------------------------------
 
     def datacenter(self, provider: str) -> JSON:
-        """Return datacenter/cloud IP ranges for a provider. No monthly limit.
+        """Return datacenter/cloud IP ranges for a provider.
+
+        Does not count against monthly limits. See https://honeydb.io/threats
+        for the full list of uncounted endpoints.
 
         Args:
             provider: One of :data:`DATACENTER_PROVIDERS` (e.g. ``"aws"``,

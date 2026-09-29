@@ -101,8 +101,8 @@ stderr with a non-zero exit code.
 | `payload-history {remote-hosts,attributes,...}` | Payload history data. |
 | `internet-scanner <ip> [--info]` | Whether an IP is a known internet scanner. |
 | `ipinfo <ip> [--source SRC]` | Check an IP against known IP lists. |
-| `netinfo {lookup,network-addresses,prefixes,as-name,geolocation} <arg>` | Network info (no monthly limit). |
-| `datacenter <provider>` | Cloud/datacenter IP ranges (no monthly limit). |
+| `netinfo {lookup,network-addresses,prefixes,as-name,geolocation} <arg>` | Network info. |
+| `datacenter <provider>` | Cloud/datacenter IP ranges (does not count against monthly limits). |
 
 `ipinfo --source` values: `bogon`, `tor`, `sansip`, `ciarmy`, `et-compromised`,
 `project-honeypot`, `pallebone`, `threatfox`, `blocklist_net_ua`.
@@ -247,12 +247,12 @@ The `Client` exposes one method per endpoint, grouped below.
   `payload_history_attribute(attr)` (plus API-deprecated helpers)
 - **Internet scanner:** `internet_scanner(ip)`, `internet_scanner_info(ip)`
 - **IP info lists:** `ipinfo(ip)`, `ipinfo_source(source, ip)`
-- **Net info (no monthly limit):** `netinfo_lookup(ip)`, `netinfo_network_addresses(cidr)`,
+- **Net info (counts against monthly limits):** `netinfo_lookup(ip)`, `netinfo_network_addresses(cidr)`,
   `netinfo_prefixes(asn)`, `netinfo_as_name(asn)`, `netinfo_geolocation(ip)`
-- **Datacenter (no monthly limit):** `datacenter(provider)`
+- **Datacenter (does not count against monthly limits):** `datacenter(provider)`
 
 See the [HoneyDB API documentation](https://honeydb.io/threats) for endpoint details and
-response formats.
+response formats, including which endpoints do not count against your monthly quota.
 
 ## Migrating from v1.x
 

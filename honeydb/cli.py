@@ -404,7 +404,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=_cmd_ipinfo)
 
     # netinfo
-    p = add("netinfo", help="Network info lookups (do not count against limits).")
+    p = add("netinfo", help="Network info lookups (count against limits).")
     p.add_argument(
         "action",
         choices=(
