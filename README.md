@@ -44,6 +44,9 @@ arguments.
 # Bad hosts seen in the last 24 hours
 honeydb bad-hosts
 
+# The same list as CSV, saved to a file
+honeydb bad-hosts --format csv > bad-hosts.csv
+
 # Full context for an IP (pretty-printed)
 honeydb ip 8.8.8.8 --pretty
 
@@ -88,7 +91,7 @@ stderr with a non-zero exit code.
 
 | Command | Description |
 | --- | --- |
-| `bad-hosts [--service S] [--mydata]` | Bad hosts (last 24h), optionally by service. |
+| `bad-hosts [--service S] [--mydata] [--format json\|csv]` | Bad hosts (last 24h), optionally by service or as CSV. |
 | `ip <ip> [--geo\|--netinfo\|--threatinfo\|--scanner\|--history\|--cve]` | IP context, or a single view. |
 | `ip-cidr <cidr>` | All IP addresses within a network range. |
 | `asn <n> [--prefixes\|--risk]` | ASN organization info, its prefixes, or its risk history and known-scanner status. |
@@ -113,6 +116,11 @@ stderr with a non-zero exit code.
 `asn-risk --scanners` values: `exclude`, `only`, `include`. Known internet scanners
 are excluded from the ranking and reported separately as benign activity: `only`
 returns that scanner report, `exclude` and `include` return the ranking.
+
+`bad-hosts --format csv` prints the CSV exactly as the API returns it (header
+`remote_host,count,last_seen`), byte for byte, as UTF-8 with `\n` line endings on
+every platform. `--pretty` has no effect on it. `--service` and `--mydata` requests
+are JSON only and ignore `--format`.
 
 `datacenter` providers: `aws`, `azure`, `azure/china`, `azure/germany`, `azure/gov`,
 `cloudflare`, `gcp`, `ibm`, `oracle`.
@@ -140,6 +148,30 @@ finally:
     client.close()
 ```
 
+### Bad hosts as CSV
+
+Pass `format="csv"` to get the bad-hosts list as CSV text instead of parsed JSON:
+
+```python
+with Client("api_id", "api_key") as honeydb:
+    csv_text = honeydb.bad_hosts(format="csv")
+
+with open("bad-hosts.csv", "w", encoding="utf-8", newline="") as handle:
+    handle.write(csv_text)
+```
+
+- The return value is a `str` holding the CSV as the API sent it (header
+  `remote_host,count,last_seen`). It is not parsed.
+- With `mydata=True` the format is ignored: the API serves own-sensor data as JSON
+  only, so parsed JSON is returned. `bad_hosts_by_service()` is JSON only too.
+- The API prefixes `'` to cells that a spreadsheet could read as a formula. The
+  client leaves that in place.
+- If the API cannot produce the CSV it answers `503`. With the default session the
+  client retries 3 times, waiting the `Retry-After` the API sends (about 90 seconds
+  in total), and then raises `HoneyDBError` with `status_code` 503 and `retry_after`
+  set. Pass a lower `retries` to `Client` to fail faster. A session you pass in
+  yourself is not retried by the library.
+
 ### Error handling
 
 Every failed request raises a typed exception, all subclasses of `HoneyDBError`:
@@ -163,6 +195,9 @@ with Client("api_id", "api_key") as honeydb:
     except HoneyDBError as error:
         print(f"Request failed with HTTP {error.status_code}: {error}")
 ```
+
+Every `HoneyDBError` has a `retry_after` attribute: the seconds to wait from the
+API's `Retry-After` header, or `None` if the API did not send one.
 
 ### Monitors
 
@@ -305,7 +340,7 @@ Both calls count against your monthly request limit.
 
 The `Client` exposes one method per endpoint, grouped below.
 
-- **Bad hosts:** `bad_hosts(mydata=False)`, `bad_hosts_by_service(service, mydata=False)`
+- **Bad hosts:** `bad_hosts(mydata=False, *, format=None)`, `bad_hosts_by_service(service, mydata=False)`
 - **IP context:** `ip(ip)`, `ip_geo(ip)`, `ip_netinfo(ip)`, `ip_threatinfo(ip)`,
   `ip_internet_scanner(ip)`, `ip_history(ip)`, `ip_cve(ip)`, `ip_cidr(cidr)`
 - **ASN:** `asn(n)`, `asn_prefixes(n)`, `asn_risk(period=None, limit=None, scanners=None)`,

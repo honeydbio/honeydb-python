@@ -9,6 +9,9 @@ class HoneyDBError(Exception):
     Attributes:
         status_code: HTTP status code returned by the API, if available.
         response: The raw text body of the response, if available.
+        retry_after: Seconds to wait before retrying, from the
+            ``Retry-After`` header, if the API sent one (HTTP 429 and 503
+            responses).
     """
 
     def __init__(
@@ -17,10 +20,12 @@ class HoneyDBError(Exception):
         *,
         status_code: int | None = None,
         response: str | None = None,
+        retry_after: float | None = None,
     ) -> None:
         super().__init__(message)
         self.status_code = status_code
         self.response = response
+        self.retry_after = retry_after
 
 
 class HoneyDBAuthError(HoneyDBError):
@@ -50,5 +55,9 @@ class HoneyDBRateLimitError(HoneyDBError):
         response: str | None = None,
         retry_after: float | None = None,
     ) -> None:
-        super().__init__(message, status_code=status_code, response=response)
-        self.retry_after = retry_after
+        super().__init__(
+            message,
+            status_code=status_code,
+            response=response,
+            retry_after=retry_after,
+        )

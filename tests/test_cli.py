@@ -202,3 +202,96 @@ def test_env_credentials(monkeypatch, requests_mock):
     m = requests_mock.get(f"{BASE}/services", json=[])
     assert cli.main(["services"]) == 0
     assert m.last_request.headers["X-HoneyDb-ApiId"] == "envid"
+
+
+# -- bad-hosts --format -----------------------------------------------------
+
+CSV_BODY = "remote_host,count,last_seen\n1.2.3.4,10,2026-10-08\n"
+CSV_HEADERS = {"Content-Type": "text/csv; charset=utf-8"}
+
+
+@pytest.mark.parametrize("extra", [[], ["--format", "json"]])
+def test_bad_hosts_json_output(capsys, requests_mock, extra):
+    m = requests_mock.get(f"{BASE}/bad-hosts", json=[{"remote_host": "1.2.3.4"}])
+    assert run(["bad-hosts", *extra]) == 0
+    assert json.loads(capsys.readouterr().out) == [{"remote_host": "1.2.3.4"}]
+    assert m.last_request.query == ""
+
+
+@pytest.mark.parametrize("extra", [[], ["--pretty"]])
+def test_bad_hosts_csv_output_is_raw(capfdbinary, requests_mock, extra):
+    m = requests_mock.get(f"{BASE}/bad-hosts", text=CSV_BODY, headers=CSV_HEADERS)
+    assert run(["bad-hosts", "--format", "csv", *extra]) == 0
+    # byte-for-byte: not JSON-quoted, no added newline, no \r\n translation
+    assert capfdbinary.readouterr().out == CSV_BODY.encode("utf-8")
+    assert m.last_request.qs == {"format": ["csv"]}
+
+
+@pytest.mark.parametrize(
+    ("extra", "path"),
+    [
+        (["--mydata"], "/api/bad-hosts/mydata"),
+        (["--service", "ssh"], "/api/bad-hosts/ssh"),
+        (["--service", "ssh", "--mydata"], "/api/bad-hosts/ssh/mydata"),
+    ],
+)
+def test_bad_hosts_csv_ignored_returns_json(capsys, requests_mock, extra, path):
+    m = requests_mock.get(
+        f"https://honeydb.io{path}", json=[{"remote_host": "9.9.9.9"}]
+    )
+    assert run(["bad-hosts", "--format", "csv", *extra]) == 0
+    assert json.loads(capsys.readouterr().out) == [{"remote_host": "9.9.9.9"}]
+    assert m.last_request.path == path
+    assert m.last_request.query == ""
+
+
+def test_bad_hosts_invalid_format_exits_2(requests_mock):
+    m = requests_mock.get(f"{BASE}/bad-hosts", json=[])
+    with pytest.raises(SystemExit) as info:
+        run(["bad-hosts", "--format", "xml"])
+    assert info.value.code == 2
+    assert not m.called
+
+
+def test_bad_hosts_csv_503_returns_1(capsys, requests_mock):
+    requests_mock.get(
+        f"{BASE}/bad-hosts",
+        status_code=503,
+        json={"status": "Service temporarily unavailable. Please retry."},
+        headers={"Retry-After": "30"},
+    )
+    assert run(["bad-hosts", "--format", "csv"]) == 1
+    captured = capsys.readouterr()
+    assert "error:" in captured.err
+    assert captured.out == ""
+
+
+def test_bad_hosts_csv_json_response_returns_1(capsys, requests_mock):
+    requests_mock.get(f"{BASE}/bad-hosts", json=[{"remote_host": "1.2.3.4"}])
+    assert run(["bad-hosts", "--format", "csv"]) == 1
+    captured = capsys.readouterr()
+    assert "error:" in captured.err
+    assert captured.out == ""
+
+
+def test_bad_hosts_help_lists_format(capsys):
+    with pytest.raises(SystemExit) as info:
+        cli.main(["bad-hosts", "--help"])
+    assert info.value.code == 0
+    assert "--format" in capsys.readouterr().out
+
+
+def test_json_bare_string_is_still_json_encoded(capsys, requests_mock):
+    requests_mock.get(f"{BASE}/services", json="ok")
+    assert run(["services"]) == 0
+    assert capsys.readouterr().out == '"ok"\n'
+
+
+def test_closed_pipe_exits_quietly(capsys, monkeypatch, requests_mock):
+    def broken(_data, _pretty):
+        raise BrokenPipeError
+
+    requests_mock.get(f"{BASE}/services", json=["ssh"])
+    monkeypatch.setattr(cli, "emit", broken)
+    assert run(["services"]) == 1
+    assert capsys.readouterr().err == ""

@@ -5,6 +5,7 @@ See https://honeydb.io for more information.
 
 from honeydb.api.client import (
     ASN_RISK_SCANNERS,
+    BAD_HOSTS_FORMATS,
     DATACENTER_PROVIDERS,
     IPINFO_SOURCES,
     Client,
@@ -16,11 +17,12 @@ from honeydb.exceptions import (
     HoneyDBRateLimitError,
 )
 
-__version__ = "2.1.2"
+__version__ = "2.2.0"
 
 __all__ = [
     "Client",
     "ASN_RISK_SCANNERS",
+    "BAD_HOSTS_FORMATS",
     "DATACENTER_PROVIDERS",
     "IPINFO_SOURCES",
     "HoneyDBError",

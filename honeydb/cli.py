@@ -9,15 +9,18 @@ Run ``honeydb --help`` to see the available commands.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import sys
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any
 
 from honeydb import __version__
 from honeydb.api.client import (
     ASN_RISK_SCANNERS,
+    BAD_HOSTS_FORMATS,
     DATACENTER_PROVIDERS,
     IPINFO_SOURCES,
     Client,
@@ -27,8 +30,25 @@ from honeydb.exceptions import HoneyDBError
 PROG = "honeydb"
 
 
+@dataclass(frozen=True)
+class _RawText:
+    """Handler result that is written to stdout as-is instead of as JSON."""
+
+    text: str
+
+
 def emit(data: Any, pretty: bool) -> None:
-    """Print JSON data, optionally pretty-printed."""
+    """Print JSON data, optionally pretty-printed, or raw text as-is."""
+    if isinstance(data, _RawText):
+        # Written as UTF-8 bytes so the output matches the API response on
+        # every platform (text mode would translate newlines on Windows).
+        buffer = getattr(sys.stdout, "buffer", None)
+        if buffer is None:
+            sys.stdout.write(data.text)
+            return
+        sys.stdout.flush()
+        buffer.write(data.text.encode("utf-8"))
+        return
     if pretty:
         print(json.dumps(data, indent=2, sort_keys=True))
     else:
@@ -43,7 +63,11 @@ def emit(data: Any, pretty: bool) -> None:
 def _cmd_bad_hosts(client: Client, args: argparse.Namespace) -> Any:
     if args.service:
         return client.bad_hosts_by_service(args.service, mydata=args.mydata)
-    return client.bad_hosts(mydata=args.mydata)
+    result = client.bad_hosts(mydata=args.mydata, format=args.format)
+    # The client returns JSON, not CSV text, when the API ignores the format.
+    if args.format == "csv" and isinstance(result, str):
+        return _RawText(result)
+    return result
 
 
 def _cmd_ip(client: Client, args: argparse.Namespace) -> Any:
@@ -238,6 +262,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("bad-hosts", help="Get bad hosts (last 24h).")
     p.add_argument("--service", help="Filter by service/protocol name.")
     p.add_argument("--mydata", action="store_true", help="Only data from your sensors.")
+    p.add_argument(
+        "--format",
+        choices=BAD_HOSTS_FORMATS,
+        help="Response format (default: json). csv prints the CSV text as "
+        "returned by the API; ignored with --service or --mydata, which "
+        "always return JSON.",
+    )
     p.set_defaults(func=_cmd_bad_hosts)
 
     # ip
@@ -464,7 +495,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
-    emit(result, pretty)
+    try:
+        emit(result, pretty)
+        sys.stdout.flush()
+    except BrokenPipeError:
+        # The reader went away (e.g. `honeydb bad-hosts --format csv | head`).
+        # Point stdout at devnull so the flush at interpreter exit cannot
+        # raise again.
+        with contextlib.suppress(OSError, ValueError):
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        return 1
     return 0
 
 
