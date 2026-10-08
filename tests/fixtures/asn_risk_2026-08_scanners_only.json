@@ -1,0 +1,517 @@
+{
+  "report_month": "2026-08",
+  "generated_at": "2026-09-02T15:58:22Z",
+  "methodology": {
+    "version": "2.0",
+    "combination": "weighted_geometric_mean",
+    "weights": {
+      "density": 0.45,
+      "magnitude": 0.25,
+      "persistence": 0.15,
+      "breadth": 0.15
+    },
+    "density_floor": 0.0001,
+    "magnitude_full_scale_log10": 5.0,
+    "breadth_full_scale": 16,
+    "min_observed_ips": 5,
+    "scanner_list_version": "2026-08-28",
+    "notes": "announced space as of generation time (iptoasn.com); days attributed by daily-file date; overlapping ranges count toward every matching ASN; density log-scaled between density_floor and full saturation; persistence add-one smoothed so an ASN absent from every daily file is suppressed, not zeroed; breadth = distinct honeypot services targeted by the ASN's IPs in the month; components combined as a weighted geometric mean (a near-zero component suppresses the score); percentile = share of scored (non-scanner) ASNs this month with a lower score; ASNs on the curated scanner list are excluded from the ranking, percentiles and summary and listed unscored in scanner_report",
+    "scanner_handling": "separate_report"
+  },
+  "window": {
+    "start": "2026-08-01",
+    "end": "2026-08-31",
+    "days_in_month": 31,
+    "days_with_data": 28,
+    "partial_window": false
+  },
+  "prior_month": "2026-07",
+  "prior_comparable": false,
+  "prior_reason": "methodology version mismatch: prior '1.0', current '2.0'",
+  "prior_scanners_excluded": 0,
+  "dropped_asns": [],
+  "summary": {
+    "asns_scored": 3218,
+    "asns_excluded_below_threshold": 7878,
+    "asns_unattributed": 0,
+    "scanners_tagged": null,
+    "scanners_observed": 10,
+    "new_entrants": null,
+    "score_histogram": {
+      "buckets": [
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-100"
+      ],
+      "counts": [
+        614,
+        272,
+        664,
+        952,
+        528,
+        146,
+        37,
+        5,
+        0,
+        0
+      ]
+    },
+    "score_median": 30.6,
+    "score_p90": 46.2,
+    "score_max": 77.3,
+    "top_by_component": {
+      "density": [
+        {
+          "asn": "203545",
+          "entity": "NERZEN-BILISIM-TEKNOLOJILERI",
+          "rank": 333,
+          "value": 0.9311
+        },
+        {
+          "asn": "203451",
+          "entity": "K-TELECOM-NETWORK",
+          "rank": 1,
+          "value": 0.8715
+        },
+        {
+          "asn": "215125",
+          "entity": "CYBEROLOGY-AS",
+          "rank": 3,
+          "value": 0.8561
+        },
+        {
+          "asn": "211250",
+          "entity": "TELECOMTRADE-UA-AS",
+          "rank": 10,
+          "value": 0.8478
+        },
+        {
+          "asn": "9465",
+          "entity": "AGOTOZPTELTD-AS-AP AGOTOZ PTE. LTD.",
+          "rank": 4,
+          "value": 0.8369
+        },
+        {
+          "asn": "60729",
+          "entity": "TORSERVERS-NET",
+          "rank": 9,
+          "value": 0.8011
+        },
+        {
+          "asn": "48090",
+          "entity": "DMZHOST",
+          "rank": 2,
+          "value": 0.8002
+        },
+        {
+          "asn": "204685",
+          "entity": "MGN",
+          "rank": 54,
+          "value": 0.7776
+        },
+        {
+          "asn": "219502",
+          "entity": "STORMCLOUD-AS - Storm Industries LLC",
+          "rank": 7,
+          "value": 0.7759
+        },
+        {
+          "asn": "196906",
+          "entity": "WESTNET-AS",
+          "rank": 45,
+          "value": 0.7696
+        }
+      ],
+      "magnitude": [
+        {
+          "asn": "44244",
+          "entity": "IRANCELL-AS",
+          "rank": 17,
+          "value": 0.8362
+        },
+        {
+          "asn": "14061",
+          "entity": "DIGITALOCEAN-ASN",
+          "rank": 35,
+          "value": 0.797
+        },
+        {
+          "asn": "13335",
+          "entity": "CLOUDFLARENET",
+          "rank": 24,
+          "value": 0.7721
+        },
+        {
+          "asn": "4837",
+          "entity": "CHINA169-BACKBONE CHINA UNICOM China169 Backbone",
+          "rank": 2421,
+          "value": 0.771
+        },
+        {
+          "asn": "4134",
+          "entity": "CHINANET-BACKBONE No.31,Jin-rong Street",
+          "rank": 2663,
+          "value": 0.7687
+        },
+        {
+          "asn": "396982",
+          "entity": "GOOGLE-CLOUD-PLATFORM",
+          "rank": 901,
+          "value": 0.7682
+        },
+        {
+          "asn": "8075",
+          "entity": "MICROSOFT-CORP-MSN-AS-BLOCK",
+          "rank": 2664,
+          "value": 0.7634
+        },
+        {
+          "asn": "197207",
+          "entity": "MCCI-AS",
+          "rank": 222,
+          "value": 0.7332
+        },
+        {
+          "asn": "22927",
+          "entity": "Telefonica de Argentina",
+          "rank": 392,
+          "value": 0.7104
+        },
+        {
+          "asn": "12389",
+          "entity": "ROSTELECOM-AS PJSC Rostelecom. Technical Team",
+          "rank": 816,
+          "value": 0.7104
+        }
+      ],
+      "persistence": [
+        {
+          "asn": "48090",
+          "entity": "DMZHOST",
+          "rank": 2,
+          "value": 1.0
+        },
+        {
+          "asn": "215125",
+          "entity": "CYBEROLOGY-AS",
+          "rank": 3,
+          "value": 1.0
+        },
+        {
+          "asn": "9465",
+          "entity": "AGOTOZPTELTD-AS-AP AGOTOZ PTE. LTD.",
+          "rank": 4,
+          "value": 1.0
+        },
+        {
+          "asn": "14987",
+          "entity": "RETHEMHOSTING",
+          "rank": 5,
+          "value": 1.0
+        },
+        {
+          "asn": "197170",
+          "entity": "TECHTIES-AS - TechTies Inc.",
+          "rank": 6,
+          "value": 1.0
+        },
+        {
+          "asn": "219502",
+          "entity": "STORMCLOUD-AS - Storm Industries LLC",
+          "rank": 7,
+          "value": 1.0
+        },
+        {
+          "asn": "25369",
+          "entity": "BANDWIDTH-AS",
+          "rank": 8,
+          "value": 1.0
+        },
+        {
+          "asn": "211250",
+          "entity": "TELECOMTRADE-UA-AS",
+          "rank": 10,
+          "value": 1.0
+        },
+        {
+          "asn": "401626",
+          "entity": "NETIFACE-TORONTO",
+          "rank": 11,
+          "value": 1.0
+        },
+        {
+          "asn": "8193",
+          "entity": "BRM-AS",
+          "rank": 12,
+          "value": 1.0
+        }
+      ],
+      "breadth": [
+        {
+          "asn": "48090",
+          "entity": "DMZHOST",
+          "rank": 2,
+          "value": 1.0
+        },
+        {
+          "asn": "215125",
+          "entity": "CYBEROLOGY-AS",
+          "rank": 3,
+          "value": 1.0
+        },
+        {
+          "asn": "9465",
+          "entity": "AGOTOZPTELTD-AS-AP AGOTOZ PTE. LTD.",
+          "rank": 4,
+          "value": 1.0
+        },
+        {
+          "asn": "14987",
+          "entity": "RETHEMHOSTING",
+          "rank": 5,
+          "value": 1.0
+        },
+        {
+          "asn": "197170",
+          "entity": "TECHTIES-AS - TechTies Inc.",
+          "rank": 6,
+          "value": 1.0
+        },
+        {
+          "asn": "219502",
+          "entity": "STORMCLOUD-AS - Storm Industries LLC",
+          "rank": 7,
+          "value": 1.0
+        },
+        {
+          "asn": "25369",
+          "entity": "BANDWIDTH-AS",
+          "rank": 8,
+          "value": 1.0
+        },
+        {
+          "asn": "60729",
+          "entity": "TORSERVERS-NET",
+          "rank": 9,
+          "value": 1.0
+        },
+        {
+          "asn": "213790",
+          "entity": "LIMITEDNETWORK-AS",
+          "rank": 13,
+          "value": 1.0
+        },
+        {
+          "asn": "215925",
+          "entity": "VPSVAULTHOST",
+          "rank": 15,
+          "value": 1.0
+        }
+      ]
+    }
+  },
+  "asns": [
+    {
+      "asn": "213412",
+      "entity": "ONYPHE",
+      "scanner": {
+        "name": "ONYPHE",
+        "url": "https://www.onyphe.io/"
+      },
+      "observed_ips": 1054,
+      "announced_ipv4_space": 1280,
+      "density": 0.8234,
+      "days_seen": 28,
+      "services_seen": 30
+    },
+    {
+      "asn": "211298",
+      "entity": "DRIFTNET",
+      "scanner": {
+        "name": "Driftnet",
+        "url": "https://driftnet.io/"
+      },
+      "observed_ips": 967,
+      "announced_ipv4_space": 1024,
+      "density": 0.9443,
+      "days_seen": 28,
+      "services_seen": 31
+    },
+    {
+      "asn": "398324",
+      "entity": "CENSYS-ARIN-01",
+      "scanner": {
+        "name": "Censys",
+        "url": "https://censys.io/"
+      },
+      "observed_ips": 479,
+      "announced_ipv4_space": 3840,
+      "density": 0.1247,
+      "days_seen": 28,
+      "services_seen": 37
+    }
+  ],
+  "scanner_report": {
+    "risk_assessment": "benign",
+    "statement": "These ASNs are operated by known internet scanners (research and attack-surface-management crawlers). Their traffic did reach HoneyDB sensors, but it is considered relatively benign and very low to no risk, so they are excluded from the ASN risk ranking and are not risk-scored. The scanner list is curated and versioned.",
+    "scanner_list_version": "2026-08-28",
+    "asns_observed": 10,
+    "asns": [
+      {
+        "asn": "213412",
+        "entity": "ONYPHE",
+        "scanner": {
+          "name": "ONYPHE",
+          "url": "https://www.onyphe.io/"
+        },
+        "observed_ips": 1054,
+        "announced_ipv4_space": 1280,
+        "density": 0.8234,
+        "days_seen": 28,
+        "services_seen": 30
+      },
+      {
+        "asn": "211298",
+        "entity": "DRIFTNET",
+        "scanner": {
+          "name": "Driftnet",
+          "url": "https://driftnet.io/"
+        },
+        "observed_ips": 967,
+        "announced_ipv4_space": 1024,
+        "density": 0.9443,
+        "days_seen": 28,
+        "services_seen": 31
+      },
+      {
+        "asn": "398324",
+        "entity": "CENSYS-ARIN-01",
+        "scanner": {
+          "name": "Censys",
+          "url": "https://censys.io/"
+        },
+        "observed_ips": 479,
+        "announced_ipv4_space": 3840,
+        "density": 0.1247,
+        "days_seen": 28,
+        "services_seen": 37
+      },
+      {
+        "asn": "208843",
+        "entity": "ALPHASTRIKE-RESEARCH",
+        "scanner": {
+          "name": "Alpha Strike Labs",
+          "url": "https://www.alphastrike.io/"
+        },
+        "observed_ips": 252,
+        "announced_ipv4_space": 1280,
+        "density": 0.1969,
+        "days_seen": 19,
+        "services_seen": 17
+      },
+      {
+        "asn": "211680",
+        "entity": "AS-BITSIGHT",
+        "scanner": {
+          "name": "BitSight",
+          "url": "https://www.bitsight.com/"
+        },
+        "observed_ips": 230,
+        "announced_ipv4_space": 1024,
+        "density": 0.2246,
+        "days_seen": 28,
+        "services_seen": 29
+      },
+      {
+        "asn": "215778",
+        "entity": "ALPHASTRIKE-HK",
+        "scanner": {
+          "name": "Alpha Strike Labs",
+          "url": "https://www.alphastrike.io/"
+        },
+        "observed_ips": 166,
+        "announced_ipv4_space": 1024,
+        "density": 0.1621,
+        "days_seen": 18,
+        "services_seen": 16
+      },
+      {
+        "asn": "398722",
+        "entity": "CENSYS-ARIN-03",
+        "scanner": {
+          "name": "Censys",
+          "url": "https://censys.io/"
+        },
+        "observed_ips": 151,
+        "announced_ipv4_space": 512,
+        "density": 0.2949,
+        "days_seen": 28,
+        "services_seen": 33
+      },
+      {
+        "asn": "209334",
+        "entity": "MODAT-01",
+        "scanner": {
+          "name": "Modat",
+          "url": "https://modat.io/"
+        },
+        "observed_ips": 117,
+        "announced_ipv4_space": 768,
+        "density": 0.1523,
+        "days_seen": 28,
+        "services_seen": 35
+      },
+      {
+        "asn": "20052",
+        "entity": "ARBOR",
+        "scanner": {
+          "name": "NETSCOUT Arbor",
+          "url": "https://www.netscout.com/arbor"
+        },
+        "observed_ips": 104,
+        "announced_ipv4_space": 512,
+        "density": 0.2031,
+        "days_seen": 28,
+        "services_seen": 5
+      },
+      {
+        "asn": "398705",
+        "entity": "CENSYS-ARIN-02",
+        "scanner": {
+          "name": "Censys",
+          "url": "https://censys.io/"
+        },
+        "observed_ips": 16,
+        "announced_ipv4_space": 512,
+        "density": 0.0312,
+        "days_seen": 28,
+        "services_seen": 27
+      }
+    ]
+  },
+  "restructured": {
+    "at": "2026-09-30T15:55:07Z",
+    "from_shape": "tagged",
+    "note": "Known internet scanners were moved out of the ranking into scanner_report; risk scores are unchanged; ranks, percentiles and the summary were recomputed without scanners."
+  },
+  "available_months": [
+    "2026-09",
+    "2026-08",
+    "2026-07"
+  ],
+  "filters": {
+    "period": "2026-08",
+    "limit": 3,
+    "scanners": "only"
+  },
+  "asns_report": "scanners",
+  "asns_total": 10,
+  "asns_returned": 3
+}

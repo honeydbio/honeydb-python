@@ -1,0 +1,66 @@
+{
+  "asn": "398324",
+  "entity": "CENSYS-ARIN-01",
+  "latest_month": "2026-09",
+  "latest": {
+    "asn": "398324",
+    "entity": "CENSYS-ARIN-01",
+    "scanner": {
+      "name": "Censys",
+      "url": "https://censys.io/"
+    },
+    "observed_ips": 482,
+    "announced_ipv4_space": 4352,
+    "density": 0.1108,
+    "days_seen": 30,
+    "services_seen": 33
+  },
+  "known_scanner": {
+    "name": "Censys",
+    "url": "https://censys.io/",
+    "risk_assessment": "benign",
+    "statement": "These ASNs are operated by known internet scanners (research and attack-surface-management crawlers). Their traffic did reach HoneyDB sensors, but it is considered relatively benign and very low to no risk, so they are excluded from the ASN risk ranking and are not risk-scored. The scanner list is curated and versioned.",
+    "scanner_list_version": "2026-08-28",
+    "period": "2026-09"
+  },
+  "months_checked": [
+    "2026-09",
+    "2026-08",
+    "2026-07"
+  ],
+  "history": [
+    {
+      "period": "2026-09",
+      "methodology_version": "2.0",
+      "rank": null,
+      "risk_score": null,
+      "percentile": null,
+      "observed_ips": 482,
+      "days_seen": 30,
+      "services_seen": 33,
+      "known_scanner": true
+    },
+    {
+      "period": "2026-08",
+      "methodology_version": "2.0",
+      "rank": null,
+      "risk_score": null,
+      "percentile": null,
+      "observed_ips": 479,
+      "days_seen": 28,
+      "services_seen": 37,
+      "known_scanner": true
+    },
+    {
+      "period": "2026-07",
+      "methodology_version": "1.0",
+      "rank": 8,
+      "risk_score": 83.4,
+      "percentile": null,
+      "observed_ips": 481,
+      "days_seen": 31,
+      "services_seen": null,
+      "known_scanner": false
+    }
+  ]
+}

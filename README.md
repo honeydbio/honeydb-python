@@ -54,12 +54,15 @@ honeydb ip 8.8.8.8 --geo
 honeydb asn 15169
 honeydb asn 15169 --prefixes
 
-# That ASN's risk score and monthly history
+# That ASN's risk score, known-scanner status and monthly history
 honeydb asn 15169 --risk
 
 # The monthly ASN risk report (pass --limit; the uncapped report is ~600 KB)
 honeydb asn-risk --limit 25 --pretty
-honeydb asn-risk --period 2026-07 --limit 25 --scanners exclude
+honeydb asn-risk --period 2026-07 --limit 25
+
+# Known internet scanners are reported separately; this returns that report
+honeydb asn-risk --scanners only --pretty
 
 # Check an IP against a specific list
 honeydb ipinfo 185.220.101.1 --source tor
@@ -88,8 +91,8 @@ stderr with a non-zero exit code.
 | `bad-hosts [--service S] [--mydata]` | Bad hosts (last 24h), optionally by service. |
 | `ip <ip> [--geo\|--netinfo\|--threatinfo\|--scanner\|--history\|--cve]` | IP context, or a single view. |
 | `ip-cidr <cidr>` | All IP addresses within a network range. |
-| `asn <n> [--prefixes\|--risk]` | ASN organization info, its prefixes, or its risk history. |
-| `asn-risk [--period YYYY-MM] [--limit N\|all] [--scanners S]` | The monthly ASN risk report. |
+| `asn <n> [--prefixes\|--risk]` | ASN organization info, its prefixes, or its risk history and known-scanner status. |
+| `asn-risk [--period YYYY-MM] [--limit N\|all] [--scanners S]` | The monthly ASN risk report: the ranking, or the separate known-scanner report. |
 | `asns [--days 1\|7]` | ASNs seen in the last 1 (default) or 7 days. |
 | `cve <cve>` | IP history for a CVE. |
 | `cve-ip <ip>` | CVE history for an IP. |
@@ -107,7 +110,9 @@ stderr with a non-zero exit code.
 `ipinfo --source` values: `bogon`, `tor`, `sansip`, `ciarmy`, `et-compromised`,
 `project-honeypot`, `pallebone`, `threatfox`, `blocklist_net_ua`.
 
-`asn-risk --scanners` values: `exclude`, `only`, `include`.
+`asn-risk --scanners` values: `exclude`, `only`, `include`. Known internet scanners
+are excluded from the ranking and reported separately as benign activity: `only`
+returns that scanner report, `exclude` and `include` return the ranking.
 
 `datacenter` providers: `aws`, `azure`, `azure/china`, `azure/germany`, `azure/gov`,
 `cloudflare`, `gcp`, `ibm`, `oracle`.
@@ -188,41 +193,109 @@ with Client("api_id", "api_key") as honeydb:
     # Call with no period first: available_months lists the periods you can ask
     # for, and it is attached only to a successful response.
     report = honeydb.asn_risk(limit=25)
-    months = report["available_months"]
+    if report:  # an empty list means no report
+        months = report["available_months"]
+        for row in report["asns"]:  # the ranking: known scanners are not in it
+            print(row["rank"], row["asn"], row["risk_score"])
 
-    july = honeydb.asn_risk(period=months[-1], limit=25, scanners="exclude")
-    history = honeydb.asn_risk_history(15169)
+        # From August 2026 on, known scanners are reported separately. The
+        # scanner report rides along on every response, whatever `scanners` is.
+        if report["methodology"].get("scanner_handling") == "separate_report":
+            scanners = report["scanner_report"]
+            print(scanners["risk_assessment"], scanners["statement"])
+            for row in scanners["asns"]:  # activity rows: no risk_score or rank
+                print(row["asn"], row["scanner"]["name"], row["observed_ips"])
+
+    # Or ask for the scanner report as the rows themselves.
+    only = honeydb.asn_risk(limit=25, scanners="only")
+    if only and only.get("asns_report") == "scanners":
+        print(only["asns_total"], "known scanner ASNs this month")
+
+    # One ASN: not seen, known scanner, or ranked.
+    result = honeydb.asn_risk_history(398324)
+    if not result:
+        print("not seen in the look-back window")
+    elif result.get("known_scanner"):
+        scanner = result["known_scanner"]
+        current = scanner["period"] == result["latest_month"]
+        print(scanner["name"], scanner["risk_assessment"], "current:", current)
+    elif result["latest"]:
+        print(result["latest"]["rank"], result["latest"]["risk_score"])
 ```
 
-Both methods return parsed JSON: an object on success. Read the notes below
-before consuming either.
+Both methods return parsed JSON: an object on success. The client passes the
+document through untouched. Read the notes below before consuming either.
 
 - **An empty list means no data.** Both endpoints answer `200 []` when the data
-  does not exist — no report for the requested month, or the ASN was not scored
-  anywhere in the six-month look-back window. This is deliberate API policy: a
-  missing object is never a 404. Branch on emptiness before subscripting, since
-  the return value is a `dict`-or-`[]` union.
+  does not exist — no report for the requested month, or the ASN is in neither
+  the ranking nor the scanner report anywhere in the six-month look-back
+  window. This is deliberate API policy: a missing object is never a 404. The
+  return value is a `dict`-or-`[]` union, so check emptiness **first**, before
+  subscripting or calling `.get()`.
 - **Discover periods from the response, not by guessing.** `available_months`
   lists every month the API holds a report for, newest first — but the API
   attaches it only to a *successful* report response, so a wrong `period` gets
   you a bare `[]` with no month list. Call with no `period` first, then request
   a specific month.
-- **Branch on `methodology.version`.** Reports come in two generations, `"1.0"`
-  (July 2026) and `"2.0"` (August 2026 onward), which carry different row
-  fields. The client passes the document through untouched and does not
-  normalize between them, so check the version rather than assuming a field
-  exists.
-- **`scanners` only does anything on 2.0 reports.** The `scanner` row flag it
-  filters on exists only on 2.0 rows. Against a 1.0 report, `exclude` is a
-  silent no-op and `only` returns a *full report document* whose `asns` is `[]`
-  and `asns_returned` is `0` — a third response shape, distinct from both the
-  success object and the `200 []` no-data case.
-- **`summary` describes the whole month**, not the rows you got back. It is
-  computed before the `scanners` and `limit` filters are applied, so
-  `asns_scored`, the score histogram, `score_median`, `score_p90` and
-  `top_by_component` cover the full report even when you asked for 25 rows.
-- **Ranks are not renumbered** by filtering or capping, so a filtered view still
-  shows each ASN's true rank in the month.
+- **Known scanners are excluded from the ranking and reported separately.**
+  From the August 2026 report on, ASNs operated by known internet scanners
+  (research and attack-surface-management crawlers) are not ranked and not
+  risk-scored. They are listed in a separate `scanner_report`, whose
+  `risk_assessment` is `"benign"` and whose `statement` explains that the
+  activity is considered relatively benign and very low to no risk.
+- **Branch on the report generation.** July 2026 is `methodology.version`
+  `"1.0"`: no `scanner_report`, and rows without `percentile`, `services_seen`
+  or `prior`. August 2026 onward is `"2.0"` with
+  `methodology.scanner_handling == "separate_report"` — check that marker
+  rather than assuming a field exists.
+- **`scanners` selects a report.** From August 2026 on, `only` puts the scanner
+  report's rows in `asns`; omitting it, `include` and `exclude` all return the
+  ranking (`exclude` and `include` are kept for compatibility and change
+  nothing). On the July 2026 report there is no scanner report: `exclude` and
+  `include` are no-ops and `only` returns a full report document whose `asns`
+  is `[]` and `asns_returned` is `0`.
+- **`asns_report` says which rows you got**: `"ranking"` or `"scanners"`. It
+  was added on 2026-09-30, so use `.get()` if your code may also read responses
+  saved before then.
+- **Scanner rows are activity rows, not ranked rows.** They carry `asn`,
+  `entity`, `scanner` (`{name, url}`), `observed_ips`, `announced_ipv4_space`,
+  `density`, `days_seen` and `services_seen`. The `risk_score`, `rank`,
+  `percentile`, `components` and `prior` keys are *absent*, not `null` — so
+  `row["risk_score"]` raises `KeyError` on a `scanners="only"` response.
+- **`asns_total` and `asns_returned`.** `asns_returned` is the number of rows
+  in `asns`. `asns_total` is the size of the selected report before `limit`:
+  for August 2026, 3,218 for the ranking and 10 for `scanners="only"`. On the
+  July 2026 report `asns_total` is the full ranked count whatever `scanners`
+  is, so `only` there reports a non-zero total with zero rows.
+- **`scanner_report` is on every response from August 2026 on**, whatever
+  `scanners` is, with `risk_assessment`, `statement`, `scanner_list_version`,
+  `asns_observed` and `asns`. `limit` caps the top-level `asns` only;
+  `scanner_report.asns` is always complete. `summary.scanners_observed` is its
+  row count.
+- **`summary` describes the whole month's ranking**, not the rows you got back.
+  It covers ranked (non-scanner) ASNs only and is unaffected by `limit` and
+  `scanners`, so `asns_scored`, the score histogram, `score_median`,
+  `score_p90` and `top_by_component` cover the full ranking even when you asked
+  for 25 rows.
+- **Ranks are among non-scanner ASNs and are not renumbered** by `limit`, so a
+  capped view still shows each ASN's true rank in the month.
+- **Deprecated keys.** `summary.scanners_tagged` and each ranked row's
+  `scanner` key are always `null`. Do not rely on either.
+- **`known_scanner` on the per-ASN call.** The top-level `known_scanner` is
+  `null`, or an object (`name`, `url`, `risk_assessment`, `statement`,
+  `scanner_list_version`, `period`) for the *newest month in the look-back in
+  which the ASN was a known scanner*. That is not necessarily `latest_month`,
+  so compare `known_scanner.period` with it: an ASN taken off the scanner list
+  has a ranked `latest` and an older `known_scanner.period`, and an ASN not
+  seen in the latest month but a scanner earlier has `latest: null` with
+  `known_scanner` set.
+- **`latest` and `history` for a scanner.** When the ASN is a known scanner in
+  the latest month, `latest` is its activity row (no `rank`, `risk_score` or
+  `percentile`). Each `history` entry carries a boolean `known_scanner` — the
+  same name as the top-level object, but a flag. Entries for scanner months
+  have `null` rank, score and percentile; months where the ASN was ranked keep
+  their numbers. Months where the ASN is in neither list are omitted, so
+  `history` can be shorter than `months_checked`.
 - **Pass a `limit` interactively.** The uncapped default report is roughly
   600 KB of JSON.
 

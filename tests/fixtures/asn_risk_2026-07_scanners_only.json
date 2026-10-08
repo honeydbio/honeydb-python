@@ -1,0 +1,262 @@
+{
+  "report_month": "2026-07",
+  "generated_at": "2026-08-14T18:03:16Z",
+  "methodology": {
+    "version": "1.0",
+    "weights": {
+      "density": 0.5,
+      "magnitude": 0.3,
+      "persistence": 0.2
+    },
+    "density_full_scale": 0.01,
+    "magnitude_full_scale_log10": 6.0,
+    "min_observed_ips": 5,
+    "notes": "announced space as of generation time (iptoasn.com); days attributed by daily-file date; overlapping ranges count toward every matching ASN"
+  },
+  "window": {
+    "start": "2026-07-01",
+    "end": "2026-07-31",
+    "days_in_month": 31,
+    "days_with_data": 31
+  },
+  "asns": [],
+  "available_months": [
+    "2026-09",
+    "2026-08",
+    "2026-07"
+  ],
+  "filters": {
+    "period": "2026-07",
+    "limit": null,
+    "scanners": "only"
+  },
+  "summary": {
+    "asns_scored": 1977,
+    "asns_excluded_below_threshold": null,
+    "asns_unattributed": null,
+    "scanners_tagged": null,
+    "scanners_observed": null,
+    "new_entrants": null,
+    "score_histogram": {
+      "buckets": [
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-100"
+      ],
+      "counts": [
+        118,
+        390,
+        783,
+        317,
+        96,
+        85,
+        76,
+        87,
+        24,
+        1
+      ]
+    },
+    "score_median": 26.8,
+    "score_p90": 58.9,
+    "score_max": 92.2,
+    "top_by_component": {
+      "density": [
+        {
+          "asn": "44244",
+          "entity": "IRANCELL-AS",
+          "rank": 1,
+          "value": 1.0
+        },
+        {
+          "asn": "25369",
+          "entity": "BANDWIDTH-AS",
+          "rank": 2,
+          "value": 1.0
+        },
+        {
+          "asn": "9541",
+          "entity": "CYBERNET-AP Cyber Internet Services Pvt Ltd.",
+          "rank": 3,
+          "value": 1.0
+        },
+        {
+          "asn": "12958",
+          "entity": "MCC T2 Russia Network",
+          "rank": 4,
+          "value": 1.0
+        },
+        {
+          "asn": "211298",
+          "entity": "DRIFTNET",
+          "rank": 5,
+          "value": 1.0
+        },
+        {
+          "asn": "213412",
+          "entity": "ONYPHE",
+          "rank": 6,
+          "value": 1.0
+        },
+        {
+          "asn": "398324",
+          "entity": "CENSYS-ARIN-01",
+          "rank": 8,
+          "value": 1.0
+        },
+        {
+          "asn": "43197",
+          "entity": "TT-MOBILE-AS PJSC TT mobile",
+          "rank": 9,
+          "value": 1.0
+        },
+        {
+          "asn": "211680",
+          "entity": "AS-BITSIGHT",
+          "rank": 11,
+          "value": 1.0
+        },
+        {
+          "asn": "197170",
+          "entity": "TECHTIES-AS - TechTies Inc.",
+          "rank": 12,
+          "value": 1.0
+        }
+      ],
+      "magnitude": [
+        {
+          "asn": "44244",
+          "entity": "IRANCELL-AS",
+          "rank": 1,
+          "value": 0.8053
+        },
+        {
+          "asn": "197207",
+          "entity": "MCCI-AS",
+          "rank": 7,
+          "value": 0.7199
+        },
+        {
+          "asn": "58224",
+          "entity": "TCI",
+          "rank": 177,
+          "value": 0.6874
+        },
+        {
+          "asn": "14061",
+          "entity": "DIGITALOCEAN-ASN",
+          "rank": 260,
+          "value": 0.649
+        },
+        {
+          "asn": "4134",
+          "entity": "CHINANET-BACKBONE No.31,Jin-rong Street",
+          "rank": 370,
+          "value": 0.6461
+        },
+        {
+          "asn": "396982",
+          "entity": "GOOGLE-CLOUD-PLATFORM",
+          "rank": 360,
+          "value": 0.6304
+        },
+        {
+          "asn": "8359",
+          "entity": "MTS",
+          "rank": 236,
+          "value": 0.6184
+        },
+        {
+          "asn": "57218",
+          "entity": "RIGHTEL",
+          "rank": 14,
+          "value": 0.6175
+        },
+        {
+          "asn": "4837",
+          "entity": "CHINA169-BACKBONE CHINA UNICOM China169 Backbone",
+          "rank": 398,
+          "value": 0.6082
+        },
+        {
+          "asn": "8075",
+          "entity": "MICROSOFT-CORP-MSN-AS-BLOCK",
+          "rank": 406,
+          "value": 0.5986
+        }
+      ],
+      "persistence": [
+        {
+          "asn": "25369",
+          "entity": "BANDWIDTH-AS",
+          "rank": 2,
+          "value": 1.0
+        },
+        {
+          "asn": "9541",
+          "entity": "CYBERNET-AP Cyber Internet Services Pvt Ltd.",
+          "rank": 3,
+          "value": 1.0
+        },
+        {
+          "asn": "12958",
+          "entity": "MCC T2 Russia Network",
+          "rank": 4,
+          "value": 1.0
+        },
+        {
+          "asn": "211298",
+          "entity": "DRIFTNET",
+          "rank": 5,
+          "value": 1.0
+        },
+        {
+          "asn": "213412",
+          "entity": "ONYPHE",
+          "rank": 6,
+          "value": 1.0
+        },
+        {
+          "asn": "398324",
+          "entity": "CENSYS-ARIN-01",
+          "rank": 8,
+          "value": 1.0
+        },
+        {
+          "asn": "43197",
+          "entity": "TT-MOBILE-AS PJSC TT mobile",
+          "rank": 9,
+          "value": 1.0
+        },
+        {
+          "asn": "48190",
+          "entity": "T2-EKATERINBURG-AS T2 Russia Network",
+          "rank": 10,
+          "value": 1.0
+        },
+        {
+          "asn": "211680",
+          "entity": "AS-BITSIGHT",
+          "rank": 11,
+          "value": 1.0
+        },
+        {
+          "asn": "197170",
+          "entity": "TECHTIES-AS - TechTies Inc.",
+          "rank": 12,
+          "value": 1.0
+        }
+      ]
+    },
+    "computed": true
+  },
+  "asns_report": "ranking",
+  "asns_total": 1977,
+  "asns_returned": 0
+}

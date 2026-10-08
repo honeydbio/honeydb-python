@@ -1,0 +1,55 @@
+{
+  "asn": "42969",
+  "entity": "ALPHASTRIKE",
+  "latest_month": "2026-09",
+  "latest": {
+    "asn": "42969",
+    "entity": "ALPHASTRIKE",
+    "scanner": {
+      "name": "Alpha Strike Labs",
+      "url": "https://www.alphastrike.io/"
+    },
+    "observed_ips": 184,
+    "announced_ipv4_space": 768,
+    "density": 0.2396,
+    "days_seen": 22,
+    "services_seen": 19
+  },
+  "known_scanner": {
+    "name": "Alpha Strike Labs",
+    "url": "https://www.alphastrike.io/",
+    "risk_assessment": "benign",
+    "statement": "These ASNs are operated by known internet scanners (research and attack-surface-management crawlers). Their traffic did reach HoneyDB sensors, but it is considered relatively benign and very low to no risk, so they are excluded from the ASN risk ranking and are not risk-scored. The scanner list is curated and versioned.",
+    "scanner_list_version": "2026-08-28",
+    "period": "2026-09"
+  },
+  "months_checked": [
+    "2026-09",
+    "2026-08",
+    "2026-07"
+  ],
+  "history": [
+    {
+      "period": "2026-09",
+      "methodology_version": "2.0",
+      "rank": null,
+      "risk_score": null,
+      "percentile": null,
+      "observed_ips": 184,
+      "days_seen": 22,
+      "services_seen": 19,
+      "known_scanner": true
+    },
+    {
+      "period": "2026-07",
+      "methodology_version": "1.0",
+      "rank": 145,
+      "risk_score": 65.0,
+      "percentile": null,
+      "observed_ips": 69,
+      "days_seen": 9,
+      "services_seen": null,
+      "known_scanner": false
+    }
+  ]
+}
