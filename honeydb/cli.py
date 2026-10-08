@@ -272,7 +272,11 @@ def build_parser() -> argparse.ArgumentParser:
     view = p.add_mutually_exclusive_group()
     for name, flag, description in (
         ("prefixes", "--prefixes", "IP prefixes for the ASN"),
-        ("risk", "--risk", "risk score and monthly history for the ASN"),
+        (
+            "risk",
+            "--risk",
+            "risk score, known-scanner status and monthly history for the ASN",
+        ),
     ):
         view.add_argument(
             flag,
@@ -293,7 +297,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--scanners",
         choices=ASN_RISK_SCANNERS,
-        help="Filter rows by their internet-scanner flag.",
+        help=(
+            "Report selector. Known internet scanners are excluded from the "
+            "ranking and reported separately as benign activity: 'only' "
+            "returns that scanner report, 'exclude' and 'include' return the "
+            "ranking."
+        ),
     )
     p.set_defaults(func=_cmd_asn_risk)
 

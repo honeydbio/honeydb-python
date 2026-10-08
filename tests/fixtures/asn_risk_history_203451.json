@@ -1,0 +1,71 @@
+{
+  "asn": "203451",
+  "entity": "K-TELECOM-NETWORK",
+  "latest_month": "2026-09",
+  "latest": {
+    "asn": "203451",
+    "entity": "K-TELECOM-NETWORK",
+    "observed_ips": 185,
+    "announced_ipv4_space": 6144,
+    "days_seen": 30,
+    "services_seen": 4,
+    "components": {
+      "density": 0.0301,
+      "density_score": 0.6197,
+      "magnitude_score": 0.4539,
+      "persistence_score": 1.0,
+      "breadth_score": 0.5681
+    },
+    "risk_score": 60.8,
+    "rank": 39,
+    "scanner": null,
+    "percentile": 98.7,
+    "prior": {
+      "rank": 1,
+      "risk_score": 77.3,
+      "rank_delta": -38,
+      "score_delta": -16.5
+    }
+  },
+  "known_scanner": null,
+  "months_checked": [
+    "2026-09",
+    "2026-08",
+    "2026-07"
+  ],
+  "history": [
+    {
+      "period": "2026-09",
+      "methodology_version": "2.0",
+      "rank": 39,
+      "risk_score": 60.8,
+      "percentile": 98.7,
+      "observed_ips": 185,
+      "days_seen": 30,
+      "services_seen": 4,
+      "known_scanner": false
+    },
+    {
+      "period": "2026-08",
+      "methodology_version": "2.0",
+      "rank": 1,
+      "risk_score": 77.3,
+      "percentile": 100.0,
+      "observed_ips": 1881,
+      "days_seen": 27,
+      "services_seen": 4,
+      "known_scanner": false
+    },
+    {
+      "period": "2026-07",
+      "methodology_version": "1.0",
+      "rank": 24,
+      "risk_score": 80.2,
+      "percentile": null,
+      "observed_ips": 652,
+      "days_seen": 25,
+      "services_seen": null,
+      "known_scanner": false
+    }
+  ]
+}

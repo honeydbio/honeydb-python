@@ -41,10 +41,12 @@ def main() -> None:
 
             # The monthly ASN risk report. Always pass a limit interactively:
             # the uncapped report is ~600 KB of JSON. An empty list means no
-            # report exists for that month.
+            # report exists for that month. Known internet scanners are
+            # excluded from the ranking and listed in "scanner_report".
             out(honeydb.asn_risk(limit=25))
 
-            # One ASN's latest risk row plus up to six months of history.
+            # One ASN's latest risk row, known-scanner status and up to six
+            # months of history.
             out(honeydb.asn_risk_history(15169))
 
             # Your own sensor data for today.

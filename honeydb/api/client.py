@@ -50,8 +50,12 @@ DATACENTER_PROVIDERS: tuple[str, ...] = (
     "oracle",
 )
 
-#: Scanner filters accepted by the ``/asn-risk`` endpoint. Mirrors the API's
-#: ``scanners`` validator (``/^(exclude|only|include)$/``).
+#: Scanner selectors accepted by the ``/asn-risk`` endpoint. Mirrors the API's
+#: ``scanners`` validator (``/^(exclude|only|include)$/``). From the August
+#: 2026 report on, known internet scanners are excluded from the ranking and
+#: reported separately, so ``only`` selects that scanner report while
+#: ``exclude`` and ``include`` are compatibility no-ops that return the
+#: ranking. On the July 2026 report the values are a legacy row filter.
 ASN_RISK_SCANNERS: tuple[str, ...] = (
     "exclude",
     "only",
@@ -361,12 +365,22 @@ class Client:
     ) -> JSON:
         """Return the monthly ASN risk report. Counts against monthly limits.
 
+        From the August 2026 report on, known internet scanners are excluded
+        from the ranking and listed, unscored, in ``scanner_report`` as benign
+        activity. Such a month is marked by
+        ``methodology["scanner_handling"] == "separate_report"``.
+
         Args:
             period: Report month as ``YYYY-MM``. Omit for the newest report.
             limit: Row cap: ``"all"``, an ``int`` from 1 to 99999, or a string
-                of 1-5 decimal digits. Omit for an uncapped report.
-            scanners: Row filter, one of :data:`ASN_RISK_SCANNERS`. Omit for
-                no filtering.
+                of 1-5 decimal digits. Omit for an uncapped report. Caps
+                ``asns`` only, never ``scanner_report["asns"]``.
+            scanners: Report selector, one of :data:`ASN_RISK_SCANNERS`.
+                ``"only"`` puts the scanner report's rows in ``asns``;
+                omitted, ``"include"`` and ``"exclude"`` all return the
+                ranking. On the July 2026 report (methodology 1.0) there is no
+                scanner report, so ``"only"`` returns a report whose ``asns``
+                is empty.
 
         Returns:
             The parsed JSON body: a report object on success, or an empty list
@@ -376,6 +390,13 @@ class Client:
             months off that response, then request a specific one. The
             uncapped report is large (~600 KB); pass ``limit`` for interactive
             use.
+
+            ``asns_report`` (``"ranking"`` or ``"scanners"``) says which
+            report ``asns`` holds. Scanner rows are activity rows: they carry
+            no ``risk_score``, ``rank``, ``percentile``, ``components`` or
+            ``prior`` key. ``scanner_report`` is present on every response
+            from August 2026 on, whatever ``scanners`` is. See the "ASN risk"
+            section of the README for the full field notes.
 
         Raises:
             ValueError: If ``period``, ``limit`` or ``scanners`` is malformed.
@@ -389,12 +410,22 @@ class Client:
         return self._request("GET", "/asn-risk", params=params)
 
     def asn_risk_history(self, as_number: int | str) -> JSON:
-        """Return an ASN's latest risk row plus history. Counts against limits.
+        """Return an ASN's risk row, scanner status and history. Counts against limits.
 
         Returns:
-            The parsed JSON body: an object carrying the latest month's row and
-            up to six months of history, or an empty list when the ASN was not
-            scored anywhere in that window.
+            The parsed JSON body: an object, or an empty list when the ASN is
+            in neither the ranking nor the scanner report anywhere in the
+            six-month look-back.
+
+            ``latest`` is the ASN's row in the newest month: a ranked row, an
+            activity row with no ``rank``, ``risk_score`` or ``percentile``
+            when the ASN is a known scanner, or ``None``. The top-level
+            ``known_scanner`` is ``None`` or an object describing the newest
+            month in which the ASN was a known scanner; its ``period`` may
+            differ from ``latest_month``, so compare the two. Each ``history``
+            entry carries a boolean ``known_scanner``; entries for scanner
+            months have ``None`` rank, score and percentile. See the "ASN
+            risk" section of the README for the full field notes.
         """
         return self._request("GET", f"/asn/{self._seg(as_number)}/risk")
 
