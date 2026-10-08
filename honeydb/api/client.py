@@ -22,7 +22,20 @@ from honeydb.exceptions import (
     HoneyDBRateLimitError,
 )
 
-__all__ = ["ASN_RISK_SCANNERS", "Client", "DATACENTER_PROVIDERS", "IPINFO_SOURCES"]
+__all__ = [
+    "ASN_RISK_SCANNERS",
+    "BAD_HOSTS_FORMATS",
+    "Client",
+    "DATACENTER_PROVIDERS",
+    "IPINFO_SOURCES",
+]
+
+#: Response formats accepted by :meth:`Client.bad_hosts`. ``csv`` is returned
+#: as unparsed text.
+BAD_HOSTS_FORMATS: tuple[str, ...] = (
+    "json",
+    "csv",
+)
 
 #: IP list sources supported by the ``/ipinfo/<source>`` endpoints.
 IPINFO_SOURCES: tuple[str, ...] = (
@@ -71,6 +84,10 @@ _LIMIT_ALL = "all"
 # largest value the API's 5-digit ``limit`` validator accepts.
 _LIMIT_MIN = 1
 _LIMIT_MAX = 99999
+# ``Retry-After`` as a plain number of seconds. float() alone would also accept
+# exponents, underscores and "inf"; the HTTP-date form is not converted.
+_RETRY_AFTER_RE = re.compile(r"^[0-9]+(\.[0-9]+)?$", re.ASCII)
+_CSV_MEDIA_TYPE = "text/csv"
 
 JSON = Any
 
@@ -136,6 +153,31 @@ def _validate_scanners(scanners: str | None) -> str | None:
             f"expected one of {', '.join(ASN_RISK_SCANNERS)}"
         )
     return scanners
+
+
+def _validate_format(format: str | None) -> str | None:
+    """Return ``format`` unchanged, or ``None``.
+
+    Raises:
+        ValueError: If ``format`` is not one of :data:`BAD_HOSTS_FORMATS`.
+    """
+    if format is None:
+        return None
+    if not isinstance(format, str) or format not in BAD_HOSTS_FORMATS:
+        raise ValueError(
+            f"Unknown format {format!r}; expected one of {', '.join(BAD_HOSTS_FORMATS)}"
+        )
+    return format
+
+
+def _parse_retry_after(value: str | None) -> float | None:
+    """Return a ``Retry-After`` header value in seconds, or ``None``."""
+    if value is None:
+        return None
+    value = value.strip()
+    if not _RETRY_AFTER_RE.match(value):
+        return None
+    return float(value)
 
 
 class Client:
@@ -204,6 +246,30 @@ class Client:
         session.mount("http://", adapter)
         return session
 
+    def _send(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: Any | None = None,
+    ) -> requests.Response:
+        """Send a request and return the response once its status is OK."""
+        url = f"{self.base_url}{path}"
+        try:
+            response = self.session.request(
+                method,
+                url,
+                params=params,
+                json=json,
+                timeout=self.timeout,
+            )
+        except requests.RequestException as error:
+            raise HoneyDBError(f"Request to {url} failed: {error}") from error
+
+        self._raise_for_status(response)
+        return response
+
     def _request(
         self,
         method: str,
@@ -222,18 +288,7 @@ class Client:
                 unparseable response body.
         """
         url = f"{self.base_url}{path}"
-        try:
-            response = self.session.request(
-                method,
-                url,
-                params=params,
-                json=json,
-                timeout=self.timeout,
-            )
-        except requests.RequestException as error:
-            raise HoneyDBError(f"Request to {url} failed: {error}") from error
-
-        self._raise_for_status(response)
+        response = self._send(method, path, params=params, json=json)
 
         # Some endpoints (e.g. datacenter feeds with no entitlement/data) return
         # an empty or whitespace-only body with a success status; treat as None.
@@ -248,6 +303,50 @@ class Client:
                 response=response.text,
             ) from error
 
+    def _request_csv(self, path: str, *, params: dict[str, Any] | None = None) -> str:
+        """Send a GET request and return the CSV body as text, unparsed.
+
+        Raises:
+            HoneyDBAuthError: On HTTP 401/403.
+            HoneyDBNotFoundError: On HTTP 404.
+            HoneyDBRateLimitError: On HTTP 429.
+            HoneyDBError: On any other HTTP or transport error, or a response
+                that is not non-empty UTF-8 CSV.
+        """
+        url = f"{self.base_url}{path}"
+        response = self._send("GET", path, params=params)
+
+        # A server or proxy that dropped ``format`` answers 200 with JSON; that
+        # must not be handed back as CSV.
+        content_type = response.headers.get("Content-Type")
+        media_type = (content_type or "").split(";", 1)[0].strip().lower()
+        if media_type != _CSV_MEDIA_TYPE:
+            raise HoneyDBError(
+                f"Expected CSV from {url} but the response Content-Type "
+                f"was {content_type!r}",
+                status_code=response.status_code,
+                response=response.text,
+            )
+        # Decoded here rather than via response.text: without a charset,
+        # requests falls back to ISO-8859-1 for text/* bodies.
+        try:
+            text = response.content.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise HoneyDBError(
+                f"CSV response from {url} was not valid UTF-8",
+                status_code=response.status_code,
+                response=response.content.decode("utf-8", errors="replace"),
+            ) from error
+        # The API always sends the header line, so an empty body is a fault,
+        # not an empty list.
+        if not text or text.isspace():
+            raise HoneyDBError(
+                f"CSV response from {url} was empty",
+                status_code=response.status_code,
+                response=text,
+            )
+        return text
+
     @staticmethod
     def _raise_for_status(response: requests.Response) -> None:
         if response.ok:
@@ -256,20 +355,19 @@ class Client:
         status = response.status_code
         body = response.text
         message = f"HoneyDB API returned HTTP {status}: {body[:200]}"
+        details: dict[str, Any] = {
+            "status_code": status,
+            "response": body,
+            "retry_after": _parse_retry_after(response.headers.get("Retry-After")),
+        }
 
         if status in (401, 403):
-            raise HoneyDBAuthError(message, status_code=status, response=body)
+            raise HoneyDBAuthError(message, **details)
         if status == 404:
-            raise HoneyDBNotFoundError(message, status_code=status, response=body)
+            raise HoneyDBNotFoundError(message, **details)
         if status == 429:
-            retry_after = response.headers.get("Retry-After")
-            raise HoneyDBRateLimitError(
-                message,
-                status_code=status,
-                response=body,
-                retry_after=float(retry_after) if retry_after else None,
-            )
-        raise HoneyDBError(message, status_code=status, response=body)
+            raise HoneyDBRateLimitError(message, **details)
+        raise HoneyDBError(message, **details)
 
     @staticmethod
     def _seg(value: Any) -> str:
@@ -291,17 +389,35 @@ class Client:
 
     # -- bad hosts --------------------------------------------------------
 
-    def bad_hosts(self, mydata: bool = False) -> JSON:
+    def bad_hosts(self, mydata: bool = False, *, format: str | None = None) -> JSON:
         """Return bad hosts seen in the last 24 hours.
 
         Args:
             mydata: If ``True``, return only data from sensors you operate.
+            format: ``"json"`` (the default) or ``"csv"``; see
+                :data:`BAD_HOSTS_FORMATS`. Ignored when ``mydata`` is ``True``:
+                the API serves own-sensor data as JSON only, so parsed JSON
+                is returned.
+
+        Returns:
+            The parsed JSON list by default. With ``format="csv"``, the CSV
+            text as a ``str``, exactly as sent by the API (header line
+            ``remote_host,count,last_seen``) and not parsed.
+
+        Raises:
+            ValueError: If ``format`` is not a supported value.
+            HoneyDBError: If CSV was requested and the response is not CSV.
         """
+        format = _validate_format(format)
+        if format == "csv" and not mydata:
+            return self._request_csv("/bad-hosts", params={"format": "csv"})
         path = "/bad-hosts/mydata" if mydata else "/bad-hosts"
         return self._request("GET", path)
 
     def bad_hosts_by_service(self, service: str, mydata: bool = False) -> JSON:
         """Return bad hosts for a given service (last 24 hours).
+
+        This endpoint is JSON only.
 
         Args:
             service: Service/protocol name to filter on.
